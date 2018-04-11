@@ -2,7 +2,6 @@ package main
 
 import (
 	"flag"
-	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -12,18 +11,25 @@ import (
 	"github.com/howeyc/gopass"
 )
 
-var path string
-var port string
-var password string
-var username string
-var noauth bool
+const (
+	empty = ""
+	route = "/"
+)
+
+var (
+	path     string
+	port     string
+	password string
+	username string
+	noauth   bool
+)
 
 func init() {
 	gracefulExit()
 	flag.StringVar(&path, "path", ".", "path to directory to serve")
 	flag.StringVar(&port, "port", "8080", "port to listen on")
-	flag.StringVar(&username, "usr", "", "username for auth")
-	flag.StringVar(&password, "pwd", "", "password for auth")
+	flag.StringVar(&username, "usr", empty, "username for auth")
+	flag.StringVar(&password, "pwd", empty, "password for auth")
 	flag.BoolVar(&noauth, "noauth", false, "do not ask for auth")
 	gin.SetMode(gin.ReleaseMode)
 }
@@ -45,34 +51,34 @@ func gracefulExit() {
 	}()
 }
 
+// Ask something to hide secretly to the user
+func askWhile(prompt string) string {
+	res := empty
+	for res == empty {
+		b, err := gopass.GetPasswdPrompt(prompt, true, os.Stdin, os.Stdout)
+		ce(err, "gopass.GetPasswdPrompt")
+		res = string(b)
+	}
+	return res
+}
+
+// Parse flags
 func parse() {
 	flag.Parse()
 	if noauth == false {
-		if username == "" {
-			fmt.Print("Username: ")
-			b, err := gopass.GetPasswdMasked()
-			ce(err, "gopass.GetPasswd")
-			username = string(b)
-		}
-		if password == "" {
-			fmt.Print("Password: ")
-			b, err := gopass.GetPasswdMasked()
-			ce(err, "gopass.GetPasswd")
-			password = string(b)
-		}
+		username = askWhile("Username: ")
+		password = askWhile("Password: ")
 	}
 }
 
 func main() {
 	parse()
 	r := gin.Default()
-	if password != "" && username != "" {
-		authorized := r.Group("/", gin.BasicAuth(gin.Accounts{
-			username: password,
-		}))
-		authorized.StaticFS("/", http.Dir(path))
+	if password != empty && username != empty {
+		r.Group(route, gin.BasicAuth(gin.Accounts{username: password})).
+			StaticFS(route, http.Dir(path))
 	} else {
-		r.StaticFS("/", http.Dir(path))
+		r.StaticFS(route, http.Dir(path))
 	}
 	log.Println("Serving files from ", path)
 	log.Printf("Listening on http://localhost:%s/\n", port)
