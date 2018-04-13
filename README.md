@@ -1,5 +1,6 @@
 # serve
-A VERY simple http server, WITH BASIC AUTH AS DEFAULT !
+A VERY simple http server, WITH BASIC AUTH AS DEFAULT !  
+Will setup an upload server and a static server.
 
 ### Install
 ```
@@ -20,4 +21,16 @@ Usage of serve:
         password for auth
   -usr string
         username for auth
+```
+
+### Example
+```
+Username: *******
+Password: *********
+Serving files from  .
+Listening on http://c:8888/serve
+	http://localhost:8888/serve
+Listening on http://c:8888/upload
+	http://localhost:8888/upload
+
 ```

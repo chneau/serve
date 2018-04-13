@@ -8,6 +8,7 @@ build:
 
 clean:
 	rm -rf bin
+	rm -rf upload
 
 deps:
 	go get -d -u -v ./...
