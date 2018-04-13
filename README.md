@@ -16,7 +16,7 @@ Usage of serve:
   -path string
         path to directory to serve (default ".")
   -port string
-        port to listen on (default "8080")
+        port to listen on (default "8888")
   -pwd string
         password for auth
   -usr string
