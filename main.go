@@ -89,7 +89,7 @@ func serve() {
 		}
 		c.Status(201)
 	})
-	log.Println("Serving files from ", path)
+	log.Println("Serving files from", path)
 	hostname, err := os.Hostname()
 	ce(err, "os.Hostname")
 	log.Printf("Listening on http://%[1]s:%[2]s/serve\n\thttp://localhost:%[2]s/serve\n", hostname, port)
