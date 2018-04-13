@@ -32,6 +32,13 @@ func init() {
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
 	}
+	log.SetPrefix("[SRV] ")
+	log.SetFlags(log.LstdFlags)
+	flag.Parse()
+	if noauth == false {
+		askWhile("Username: ", &username)
+		askWhile("Password: ", &password)
+	}
 }
 
 // checkError
@@ -50,15 +57,6 @@ func askWhile(prompt string, res *string) {
 	}
 }
 
-// Parse flags and ask username / password
-func parse() {
-	flag.Parse()
-	if noauth == false {
-		askWhile("Username: ", &username)
-		askWhile("Password: ", &password)
-	}
-}
-
 func serveGroup(r *gin.Engine) *gin.RouterGroup {
 	if password != "" && username != "" {
 		return r.Group("/", gin.BasicAuth(gin.Accounts{username: password}))
@@ -70,7 +68,7 @@ func serve() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	grp := serveGroup(r)
-	grp.GET("/", func(c *gin.Context) { c.Redirect(307, "/serve") })
+	grp.GET("/", func(c *gin.Context) { c.Redirect(307, "/upload") })
 	grp.StaticFS("/serve", http.Dir(path))
 	grp.GET("/upload", func(c *gin.Context) {
 		c.Data(200, "text/html; charsed=ute-8", html)
@@ -93,11 +91,9 @@ func serve() {
 		}
 		c.Status(201)
 	})
-	log.Println("Serving files from", path)
 	hostname, err := os.Hostname()
 	ce(err, "os.Hostname")
-	log.Printf("Listening on http://%[1]s:%[2]s/serve\n\thttp://localhost:%[2]s/serve\n", hostname, port)
-	log.Printf("Listening on http://%[1]s:%[2]s/upload\n\thttp://localhost:%[2]s/upload\n", hostname, port)
+	log.Printf("Listening on http://%[1]s:%[2]s/ , http://localhost:%[2]s/\n", hostname, port)
 	err = r.Run(":" + port)
 	ce(err, "http.ListenAndServe")
 }
@@ -112,6 +108,5 @@ func gracefulExit() {
 }
 
 func main() {
-	parse()
 	serve()
 }
