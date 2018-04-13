@@ -100,7 +100,7 @@ func serve() {
 
 func gracefulExit() {
 	quit := make(chan os.Signal)
-	signal.Notify(quit,erve/ os.Interrupt)
+	signal.Notify(quit, os.Interrupt)
 	go func() {
 		<-quit
 		os.Exit(0)
