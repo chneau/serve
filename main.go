@@ -82,8 +82,8 @@ func serve() {
 		ce(err, "file.Open")
 		written, err := io.Copy(f, ff)
 		ce(err, "io.Copy")
-		ff.Close()
-		f.Close()
+		ce(ff.Close(), "ff.Close()")
+		ce(f.Close(), "f.Close()")
 		if written != file.Size {
 			c.Status(406)
 		}
