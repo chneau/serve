@@ -64,7 +64,16 @@ func serveGroup(r *gin.Engine) *gin.RouterGroup {
 	return r.Group("/")
 }
 
-func serve() {
+func gracefulExit() {
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	go func() {
+		<-quit
+		os.Exit(0)
+	}()
+}
+
+func main() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	grp := serveGroup(r)
@@ -96,17 +105,4 @@ func serve() {
 	log.Printf("Listening on http://%[1]s:%[2]s/ , http://localhost:%[2]s/\n", hostname, port)
 	err = r.Run(":" + port)
 	ce(err, "http.ListenAndServe")
-}
-
-func gracefulExit() {
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	go func() {
-		<-quit
-		os.Exit(0)
-	}()
-}
-
-func main() {
-	serve()
 }
