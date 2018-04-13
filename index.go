@@ -58,7 +58,7 @@ var html = []byte(`
 </head>
 
 <body>
-    <h1 id="try-it-out">Upload!</h1>
+    <h1 id="try-it-out">Upload! <a href="/serve">Serve!</a></h1>
     <form action="/upload" class="dropzone needsclick dz-clickable" id="my-awesome-dropzone"></form>
 </body>
 

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/howeyc/gopass"
@@ -28,6 +29,9 @@ func init() {
 	flag.StringVar(&password, "pwd", "", "password for auth")
 	flag.BoolVar(&noauth, "noauth", false, "do not ask for auth")
 	gin.SetMode(gin.ReleaseMode)
+	if runtime.GOOS == "windows" {
+		gin.DisableConsoleColor()
+	}
 }
 
 // checkError
