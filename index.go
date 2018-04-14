@@ -49,7 +49,7 @@ var html = []byte(`
             paramName: "file",
             maxFilesize: 999999,
             uploadMultiple: false,
-            parallelUploads: 500,
+            parallelUploads: 10,
             sending: function (file, xhr, formData) {
                 formData.append("fullPath", file.fullPath || file.name);
             }
