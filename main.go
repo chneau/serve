@@ -3,14 +3,17 @@ package main
 import (
 	"flag"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"runtime"
 
+	_ "github.com/chneau/serve/pkg/statik"
 	"github.com/gin-gonic/gin"
 	"github.com/howeyc/gopass"
+	"github.com/rakyll/statik/fs"
 )
 
 var (
@@ -22,23 +25,18 @@ var (
 )
 
 func init() {
+	gin.SetMode(gin.ReleaseMode)
+	if runtime.GOOS == "windows" {
+		gin.DisableConsoleColor()
+	}
 	gracefulExit()
 	flag.StringVar(&path, "path", ".", "path to directory to serve")
 	flag.StringVar(&port, "port", "8888", "port to listen on")
 	flag.StringVar(&username, "usr", "", "username for auth")
 	flag.StringVar(&password, "pwd", "", "password for auth")
 	flag.BoolVar(&noauth, "noauth", false, "do not ask for auth")
-	gin.SetMode(gin.ReleaseMode)
-	if runtime.GOOS == "windows" {
-		gin.DisableConsoleColor()
-	}
 	log.SetPrefix("[SRV] ")
 	log.SetFlags(log.LstdFlags)
-	flag.Parse()
-	if noauth == false {
-		askWhile("Username: ", &username)
-		askWhile("Password: ", &password)
-	}
 }
 
 // checkError
@@ -74,6 +72,24 @@ func gracefulExit() {
 }
 
 func main() {
+
+	fs, err := fs.New()
+	ce(err, "fs.New()")
+
+	f, err := fs.Open("/")
+	ce(err, `fs.Open("/index.html")`)
+
+	html, err := ioutil.ReadAll(f)
+	ce(err, "ioutil.ReadAll(f)")
+
+	f.Close()
+
+	flag.Parse()
+	if noauth == false {
+		askWhile("Username: ", &username)
+		askWhile("Password: ", &password)
+	}
+	
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	grp := serveGroup(r)

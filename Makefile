@@ -1,7 +1,16 @@
-.PHONY: run deps build clean
+.SILENT:
+.ONESHELL:
+.NOTPARALLEL:
+.EXPORT_ALL_VARIABLES:
+.PHONY: run deps build clean exec
 
-run: build
+run: buildPublic build exec clean
+
+exec:
 	./bin/app
+
+buildPublic:
+	statik -src=./public -dest=./pkg
 
 build:
 	go build -o bin/app -ldflags '-s -w -extldflags "-static"'
