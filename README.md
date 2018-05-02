@@ -4,8 +4,7 @@ Will setup an upload server and a static server.
 
 ### Install
 ```
-go get -u github.com/chneau/serve
-go install github.com/chneau/serve
+go get -u -v github.com/chneau/serve/...
 ```
 
 ### Usage
