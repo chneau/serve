@@ -13,7 +13,7 @@ buildPublic:
 	statik -src=./public -dest=./pkg
 
 build:
-	go build -o bin/app -ldflags '-s -w -extldflags "-static"'
+	CGO_ENABLED=0 go build -o bin/app -ldflags '-s -w -extldflags "-static"'
 
 clean:
 	rm -rf bin
