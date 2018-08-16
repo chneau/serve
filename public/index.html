@@ -47,17 +47,26 @@
             maxFilesize: 999999,
             uploadMultiple: false,
             parallelUploads: 10,
-            sending: function (file, xhr, formData) {
+            sending(file, xhr, formData) {
                 formData.append("fullPath", file.fullPath || file.name);
+            },
+            init() {
+                this.on("complete", function (file) {
+                    if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+                        serve.contentWindow.location.reload(true);
+                    }
+                });
             }
         };
     </script>
 </head>
 
 <body>
-    <h1 id="try-it-out">Upload!
-        <a href="/serve" target="_blank">Serve!</a>
-    </h1>
+    <input type="button" value="⬅️" onclick="if(serve.contentWindow.location.pathname != '/serve/'){serve.contentWindow.history.back()}">
+    <input type="button" value="🏠" onclick="serve.contentWindow.location.reload(true);serve.contentWindow.location='/serve/'">
+    <input type="button" value="➡️" onclick="serve.contentWindow.history.forward()">
+    <a href="/zip" target="_blank">.zip</a>
+    <iframe id="serve" height="500px" width="100%" src="/serve"></iframe>
     <form action="/upload" class="dropzone needsclick dz-clickable" id="my-awesome-dropzone"></form>
 </body>
 

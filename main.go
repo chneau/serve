@@ -89,13 +89,12 @@ func main() {
 		askWhile("Username: ", &username)
 		askWhile("Password: ", &password)
 	}
-	
+
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	grp := serveGroup(r)
-	grp.GET("/", func(c *gin.Context) { c.Redirect(307, "/upload") })
 	grp.StaticFS("/serve", http.Dir(path))
-	grp.GET("/upload", func(c *gin.Context) {
+	grp.GET("/", func(c *gin.Context) {
 		c.Data(200, "text/html; charsed=ute-8", html)
 	})
 	grp.POST("/upload", func(c *gin.Context) {
@@ -115,6 +114,9 @@ func main() {
 			c.Status(406)
 		}
 		c.Status(201)
+	})
+	grp.GET("/zip", func(c *gin.Context) {
+		zipit(path,c.Writer)
 	})
 	hostname, err := os.Hostname()
 	ce(err, "os.Hostname")
