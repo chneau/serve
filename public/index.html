@@ -58,6 +58,10 @@
                 });
             }
         };
+        function zip() {
+            let localPath = serve.contentWindow.location.pathname.substring(6);
+            window.open(`/zip${localPath}`, '_blank');
+        }
     </script>
 </head>
 
@@ -65,7 +69,7 @@
     <input type="button" value="⬅️" onclick="if(serve.contentWindow.location.pathname != '/serve/'){serve.contentWindow.history.back()}">
     <input type="button" value="🏠" onclick="serve.contentWindow.location.reload(true);serve.contentWindow.location='/serve/'">
     <input type="button" value="➡️" onclick="serve.contentWindow.history.forward()">
-    <a href="/zip" target="_blank">.zip</a>
+    <input type="button" value=".zip" onclick="zip()">
     <iframe id="serve" height="500px" width="100%" src="/serve"></iframe>
     <form action="/upload" class="dropzone needsclick dz-clickable" id="my-awesome-dropzone"></form>
 </body>

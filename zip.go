@@ -27,24 +27,16 @@ func zipit(source string, target io.Writer) error {
 			return err
 		}
 
-		if info.IsDir() && info.Name() == "upload" {
+		if info.IsDir() && info.Name() == "uploaded_files" {
 			return filepath.SkipDir
 		}
-
 		header, err := zip.FileInfoHeader(info)
 		if err != nil {
 			return err
 		}
 
 		if baseDir != "" {
-			path := strings.TrimPrefix(path, source)
-			if len(path) > 0 && (path[0] == '/' || path[0] == '\\') {
-				path = path[1:]
-			}
-			if len(path) == 0 {
-				return nil
-			}
-			header.Name = path
+			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
 		}
 
 		if info.IsDir() {

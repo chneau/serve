@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"path/filepath"
 	"runtime"
 
 	_ "github.com/chneau/serve/pkg/statik"
@@ -17,7 +18,7 @@ import (
 )
 
 var (
-	path     string
+	pathDir  string
 	port     string
 	password string
 	username string
@@ -30,13 +31,14 @@ func init() {
 		gin.DisableConsoleColor()
 	}
 	gracefulExit()
-	flag.StringVar(&path, "path", ".", "path to directory to serve")
+	flag.StringVar(&pathDir, "path", ".", "path to directory to serve")
 	flag.StringVar(&port, "port", "8888", "port to listen on")
 	flag.StringVar(&username, "usr", "", "username for auth")
 	flag.StringVar(&password, "pwd", "", "password for auth")
 	flag.BoolVar(&noauth, "noauth", false, "do not ask for auth")
 	log.SetPrefix("[SRV] ")
 	log.SetFlags(log.LstdFlags)
+	pathDir, _ = filepath.Abs(pathDir)
 }
 
 // checkError
@@ -93,7 +95,7 @@ func main() {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	grp := serveGroup(r)
-	grp.StaticFS("/serve", http.Dir(path))
+	grp.StaticFS("/serve", http.Dir(pathDir))
 	grp.GET("/", func(c *gin.Context) {
 		c.Data(200, "text/html; charsed=ute-8", html)
 	})
@@ -101,8 +103,8 @@ func main() {
 		file, err := c.FormFile("file")
 		ce(err, "c.FormFile")
 		fullPath := c.PostForm("fullPath")
-		os.MkdirAll(path+"/upload/"+fullPath[:len(fullPath)-len(file.Filename)], 0777)
-		f, err := os.OpenFile(path+"/upload/"+fullPath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666)
+		os.MkdirAll(pathDir+"/uploaded_files/"+fullPath[:len(fullPath)-len(file.Filename)], 0777)
+		f, err := os.OpenFile(pathDir+"/uploaded_files/"+fullPath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666)
 		ce(err, "os.OpenFile")
 		ff, err := file.Open()
 		ce(err, "file.Open")
@@ -115,8 +117,12 @@ func main() {
 		}
 		c.Status(201)
 	})
-	grp.GET("/zip", func(c *gin.Context) {
-		zipit(path,c.Writer)
+	grp.GET("/zip/*path", func(c *gin.Context) {
+		p := c.Param("path")
+		cleanedPath := filepath.Clean(pathDir + p)
+		header := c.Writer.Header()
+		header["Content-Disposition"] = []string{"attachment; filename= " + filepath.Base(cleanedPath) + ".zip"}
+		zipit(cleanedPath, c.Writer)
 	})
 	hostname, err := os.Hostname()
 	ce(err, "os.Hostname")
