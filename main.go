@@ -69,6 +69,7 @@ func gracefulExit() {
 	signal.Notify(quit, os.Interrupt)
 	go func() {
 		<-quit
+		println()
 		os.Exit(0)
 	}()
 }
