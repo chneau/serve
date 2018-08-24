@@ -79,7 +79,7 @@ func main() {
 	fs, err := fs.New()
 	ce(err, "fs.New()")
 
-	f, err := fs.Open("/")
+	f, err := fs.Open("/index.html")
 	ce(err, `fs.Open("/index.html")`)
 
 	html, err := ioutil.ReadAll(f)
