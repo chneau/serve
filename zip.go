@@ -1,11 +1,12 @@
 package main
 
 import (
-	"archive/zip"
 	"io"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/klauspost/compress/zip"
 )
 
 func zipit(source string, target io.Writer) error {
@@ -22,7 +23,7 @@ func zipit(source string, target io.Writer) error {
 		baseDir = filepath.Base(source)
 	}
 
-	filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
