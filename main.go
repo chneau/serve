@@ -100,6 +100,22 @@ func main() {
 	grp.GET("/", func(c *gin.Context) {
 		c.Data(200, "text/html; charsed=ute-8", html)
 	})
+	grp.GET("/dropzone.js", func(c *gin.Context) {
+		res, err := http.DefaultClient.Get("https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/min/dropzone.min.js")
+		if err != nil {
+			c.Error(err)
+		}
+		c.Header("Content-Type", "text/javascript")
+		io.Copy(c.Writer, res.Body)
+	})
+	grp.GET("/dropzone.css", func(c *gin.Context) {
+		res, err := http.DefaultClient.Get("https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/min/dropzone.min.css")
+		if err != nil {
+			c.Error(err)
+		}
+		c.Header("Content-Type", "text/css")
+		io.Copy(c.Writer, res.Body)
+	})
 	grp.POST("/upload", func(c *gin.Context) {
 		file, err := c.FormFile("file")
 		ce(err, "c.FormFile")
