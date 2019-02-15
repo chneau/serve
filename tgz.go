@@ -7,20 +7,20 @@ import (
 	"path/filepath"
 	"strings"
 
-	gzip "github.com/klauspost/pgzip"
+	"github.com/klauspost/pgzip"
 )
 
 func tgzit(source string, target io.Writer) error {
-	if _, err := os.Stat(source); err != nil {
-		return err
-	}
-	gzw, _ := gzip.NewWriterLevel(target, gzip.HuffmanOnly)
+	gzw, _ := pgzip.NewWriterLevel(target, pgzip.HuffmanOnly)
 	defer gzw.Close()
 	tw := tar.NewWriter(gzw)
 	defer tw.Close()
 	return filepath.Walk(source, func(file string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err
+		}
+		if !fi.Mode().IsRegular() {
+			return nil
 		}
 		header, err := tar.FileInfoHeader(fi, fi.Name())
 		if err != nil {
@@ -30,17 +30,12 @@ func tgzit(source string, target io.Writer) error {
 		if err := tw.WriteHeader(header); err != nil {
 			return err
 		}
-		if !fi.Mode().IsRegular() {
-			return nil
-		}
 		f, err := os.Open(file)
 		if err != nil {
 			return err
 		}
-		if _, err := io.Copy(tw, f); err != nil {
-			return err
-		}
-		f.Close()
+		defer f.Close()
+		_, err = io.Copy(tw, f)
 		return nil
 	})
 }

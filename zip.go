@@ -10,59 +10,31 @@ import (
 )
 
 func zipit(source string, target io.Writer) error {
-	archive := zip.NewWriter(target)
-	defer archive.Close()
-
-	info, err := os.Stat(source)
-	if err != nil {
-		return err
-	}
-
-	var baseDir string
-	if info.IsDir() {
-		baseDir = filepath.Base(source)
-	}
-
-	err = filepath.Walk(source, func(path string, info os.FileInfo, err error) error {
+	zw := zip.NewWriter(target)
+	defer zw.Close()
+	return filepath.Walk(source, func(file string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
-
-		if info.IsDir() && info.Name() == "uploaded_files" {
-			return filepath.SkipDir
-		}
-		header, err := zip.FileInfoHeader(info)
-		if err != nil {
-			return err
-		}
-
-		if baseDir != "" {
-			header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
-		}
-
-		if info.IsDir() {
-			header.Name += "/"
-		} else {
-			header.Method = zip.Deflate
-		}
-
-		writer, err := archive.CreateHeader(header)
-		if err != nil {
-			return err
-		}
-
-		if info.IsDir() {
+		if !fi.Mode().IsRegular() {
 			return nil
 		}
-
-		file, err := os.Open(path)
+		header, err := zip.FileInfoHeader(fi)
 		if err != nil {
 			return err
 		}
-		defer file.Close()
-		_, err = io.Copy(writer, file)
+		header.Name = strings.TrimPrefix(strings.Replace(file, source, "", -1), string(filepath.Separator))
+		header.Method = zip.Deflate
+		wh, err := zw.CreateHeader(header)
+		if err != nil {
+			return err
+		}
+		f, err := os.Open(file)
+		if err != nil {
+			return err
+		}
+		defer f.Close()
+		_, err = io.Copy(wh, f)
 		return err
 	})
-
-	return err
 }
