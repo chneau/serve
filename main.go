@@ -141,13 +141,6 @@ func main() {
 		header["Content-Disposition"] = []string{"attachment; filename= " + filepath.Base(cleanedPath) + ".zip"}
 		zipit(cleanedPath, c.Writer)
 	})
-	grp.GET("/tgz/*path", func(c *gin.Context) {
-		p := c.Param("path")
-		cleanedPath := filepath.Clean(pathDir + p)
-		header := c.Writer.Header()
-		header["Content-Disposition"] = []string{"attachment; filename= " + filepath.Base(cleanedPath) + ".tgz"}
-		tgzit(cleanedPath, c.Writer)
-	})
 	hostname, err := os.Hostname()
 	ce(err, "os.Hostname")
 	log.Printf("Listening on http://%[1]s:%[2]s/ , http://localhost:%[2]s/\n", hostname, port)
