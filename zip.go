@@ -24,7 +24,7 @@ func zipit(source string, target io.Writer) error {
 			return err
 		}
 		header.Name = strings.TrimPrefix(strings.Replace(file, source, "", -1), string(filepath.Separator))
-		header.Method = zip.Deflate
+		header.Method = zip.Store
 		wh, err := zw.CreateHeader(header)
 		if err != nil {
 			return err
