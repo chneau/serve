@@ -5,6 +5,7 @@ import (
 	"io"
 	"io/ioutil"
 	"log"
+	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -74,6 +75,32 @@ func gracefulExit() {
 	}()
 }
 
+func printIP(port string) {
+	ifaces, err := net.Interfaces()
+	if err != nil {
+		panic(err)
+	}
+	for _, i := range ifaces {
+		addrs, err := i.Addrs()
+		if err != nil {
+			panic(err)
+		}
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip.To4() == nil {
+				continue
+			}
+			log.Printf("Listening on (%s) http://%s:%s/", i.Name, ip, port)
+		}
+	}
+}
+
 func main() {
 
 	fs, err := fs.New()
@@ -141,9 +168,7 @@ func main() {
 		header["Content-Disposition"] = []string{"attachment; filename= " + filepath.Base(cleanedPath) + ".zip"}
 		zipit(cleanedPath, c.Writer)
 	})
-	hostname, err := os.Hostname()
-	ce(err, "os.Hostname")
-	log.Printf("Listening on http://%[1]s:%[2]s/ , http://localhost:%[2]s/\n", hostname, port)
+	printIP(port)
 	err = r.Run(":" + port)
 	ce(err, "http.ListenAndServe")
 }
