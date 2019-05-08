@@ -6,5 +6,6 @@ ADD . $BASE
 RUN cd $BASE && CGO_ENABLED=0 go build -o /serve -ldflags '-s -w -extldflags "-static"'
 
 FROM alpine AS prod-ready
+RUN apk add --no-cache ca-certificates
 COPY --from=build-env /serve /serve
 ENTRYPOINT [ "/serve" ]
