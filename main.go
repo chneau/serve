@@ -105,14 +105,26 @@ func main() {
 
 	fs, err := fs.New()
 	ce(err, "fs.New()")
+	var html, dcss, djs []byte
+	{
+		f, err := fs.Open("/index.html")
+		ce(err, `fs.Open("/index.html")`)
+		f.Close()
+		html, err = ioutil.ReadAll(f)
+		ce(err, "ioutil.ReadAll(f)")
 
-	f, err := fs.Open("/index.html")
-	ce(err, `fs.Open("/index.html")`)
+		f, err = fs.Open("/dropzone.css")
+		ce(err, `fs.Open("/index.html")`)
+		f.Close()
+		dcss, err = ioutil.ReadAll(f)
+		ce(err, "ioutil.ReadAll(f)")
 
-	html, err := ioutil.ReadAll(f)
-	ce(err, "ioutil.ReadAll(f)")
-
-	f.Close()
+		f, err = fs.Open("/dropzone.js")
+		ce(err, `fs.Open("/index.html")`)
+		f.Close()
+		djs, err = ioutil.ReadAll(f)
+		ce(err, "ioutil.ReadAll(f)")
+	}
 
 	flag.Parse()
 	if noauth == false {
@@ -128,20 +140,10 @@ func main() {
 		c.Data(200, "text/html; charsed=ute-8", html)
 	})
 	grp.GET("/dropzone.js", func(c *gin.Context) {
-		res, err := http.DefaultClient.Get("https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/min/dropzone.min.js")
-		if err != nil {
-			c.Error(err)
-		}
-		c.Header("Content-Type", "text/javascript")
-		io.Copy(c.Writer, res.Body)
+		c.Data(200, "text/javascript; charsed=ute-8", djs)
 	})
 	grp.GET("/dropzone.css", func(c *gin.Context) {
-		res, err := http.DefaultClient.Get("https://cdn.jsdelivr.net/npm/dropzone@5.5.1/dist/min/dropzone.min.css")
-		if err != nil {
-			c.Error(err)
-		}
-		c.Header("Content-Type", "text/css")
-		io.Copy(c.Writer, res.Body)
+		c.Data(200, "text/css; charsed=ute-8", dcss)
 	})
 	grp.POST("/upload", func(c *gin.Context) {
 		file, err := c.FormFile("file")
