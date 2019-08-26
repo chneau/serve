@@ -62,7 +62,9 @@
             let localPath = serve.contentWindow.location.pathname.substring(6);
             window.open(`/zip${localPath}`, '_blank');
         }
-        serve.contentWindow.location.reload(true);
+        window.onload = function () {
+            serve.contentWindow.location.reload(true);
+        };
     </script>
 </head>
 
