@@ -4,16 +4,22 @@
 .EXPORT_ALL_VARIABLES:
 .PHONY: run deps build clean exec
 
+name=$(shell basename $(CURDIR))
+# commit_hash=$(shell git log -1 --pretty=format:"%H")
+# commit_date=$(shell git log -1 --pretty=format:"%cD")
+# commit_timestamp=$(shell git log -1 --pretty=format:"%at")
+# current_dir = $(shell pwd)
+
 run: buildPublic build exec clean
 
 exec:
-	./bin/app
+	./bin/${name}
 
 buildPublic:
 	statik -src=./public -dest=./pkg
 
 build:
-	CGO_ENABLED=0 go build -o bin/app -ldflags '-s -w -extldflags "-static"'
+	CGO_ENABLED=0 go build -o bin/${name} -ldflags '-s -w -extldflags "-static"'
 
 clean:
 	rm -rf bin
