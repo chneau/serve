@@ -3,7 +3,6 @@ package main
 import (
 	"flag"
 	"io"
-	"io/ioutil"
 	"log"
 	"net"
 	"net/http"
@@ -12,10 +11,9 @@ import (
 	"path/filepath"
 	"runtime"
 
-	_ "github.com/chneau/serve/pkg/statik"
+	"github.com/chneau/serve/pkg/statik"
 	"github.com/gin-gonic/gin"
 	"github.com/howeyc/gopass"
-	"github.com/rakyll/statik/fs"
 )
 
 var (
@@ -102,28 +100,17 @@ func printIP(port string) {
 }
 
 func main() {
-
-	fs, err := fs.New()
-	ce(err, "fs.New()")
 	var html, dcss, djs []byte
+	var err error
 	{
-		f, err := fs.Open("/index.html")
-		ce(err, `fs.Open("/index.html")`)
-		f.Close()
-		html, err = ioutil.ReadAll(f)
-		ce(err, "ioutil.ReadAll(f)")
+		html, err = statik.Asset("public/index.html")
+		ce(err, `statik.Asset("public/index.html")`)
 
-		f, err = fs.Open("/dropzone.css")
-		ce(err, `fs.Open("/index.html")`)
-		f.Close()
-		dcss, err = ioutil.ReadAll(f)
-		ce(err, "ioutil.ReadAll(f)")
+		dcss, err = statik.Asset("public/dropzone.css")
+		ce(err, `statik.Asset("public/dropzone.css")`)
 
-		f, err = fs.Open("/dropzone.js")
-		ce(err, `fs.Open("/index.html")`)
-		f.Close()
-		djs, err = ioutil.ReadAll(f)
-		ce(err, "ioutil.ReadAll(f)")
+		djs, err = statik.Asset("public/dropzone.js")
+		ce(err, `statik.Asset("public/dropzone.js")`)
 	}
 
 	flag.Parse()

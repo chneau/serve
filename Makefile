@@ -16,7 +16,7 @@ exec:
 	./bin/${name}
 
 buildPublic:
-	statik -src=./public -dest=./pkg
+	go-bindata -pkg statik -o ./pkg/statik/statik.go ./public
 
 build:
 	CGO_ENABLED=0 go build -o bin/${name} -ldflags '-s -w -extldflags "-static"'
@@ -32,4 +32,5 @@ deps:
 
 dev:
 	go get -u -v github.com/kardianos/govendor
+	go get -u -v github.com/go-bindata/go-bindata/...
 
