@@ -3,16 +3,21 @@ package main
 import (
 	"io"
 	"os"
+	"path"
 	"path/filepath"
-	"strings"
 
 	"github.com/klauspost/compress/zip"
 )
 
-func zipit(source string, target io.Writer) error {
+func zipit(inFilePath string, target io.Writer) error {
+	basePath := filepath.Dir(inFilePath)
 	zw := zip.NewWriter(target)
 	defer zw.Close()
-	return filepath.Walk(source, func(file string, fi os.FileInfo, err error) error {
+	return filepath.Walk(inFilePath, func(filePath string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		relativeFilePath, err := filepath.Rel(basePath, filePath)
 		if err != nil {
 			return err
 		}
@@ -23,13 +28,13 @@ func zipit(source string, target io.Writer) error {
 		if err != nil {
 			return err
 		}
-		header.Name = strings.TrimPrefix(strings.Replace(file, source, "", -1), string(filepath.Separator))
+		header.Name = path.Join(filepath.SplitList(relativeFilePath)...)
 		header.Method = zip.Store
 		wh, err := zw.CreateHeader(header)
 		if err != nil {
 			return err
 		}
-		f, err := os.Open(file)
+		f, err := os.Open(filePath)
 		if err != nil {
 			return err
 		}
