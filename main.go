@@ -4,7 +4,6 @@ import (
 	"flag"
 	"io"
 	"log"
-	"net"
 	"net/http"
 	"os"
 	"os/signal"
@@ -16,28 +15,22 @@ import (
 	"github.com/howeyc/gopass"
 )
 
-var (
-	pathDir  string
-	port     string
-	password string
-	username string
-	noauth   bool
-)
+var ()
 
 func init() {
+	log.SetPrefix("[SRV] ")
+	log.SetFlags(log.LstdFlags)
 	gin.SetMode(gin.ReleaseMode)
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
 	}
-	gracefulExit()
-	flag.StringVar(&pathDir, "path", ".", "path to directory to serve")
-	flag.StringVar(&port, "port", "8888", "port to listen on")
-	flag.StringVar(&username, "usr", "", "username for auth")
-	flag.StringVar(&password, "pwd", "", "password for auth")
-	flag.BoolVar(&noauth, "noauth", false, "do not ask for auth")
-	log.SetPrefix("[SRV] ")
-	log.SetFlags(log.LstdFlags)
-	pathDir, _ = filepath.Abs(pathDir)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	go func() {
+		<-quit
+		println()
+		os.Exit(0)
+	}()
 }
 
 // checkError
@@ -56,64 +49,26 @@ func askWhile(prompt string, res *string) {
 	}
 }
 
-func serveGroup(r *gin.Engine) *gin.RouterGroup {
-	if password != "" && username != "" {
-		return r.Group("/", gin.BasicAuth(gin.Accounts{username: password}))
-	}
-	return r.Group("/")
-}
-
-func gracefulExit() {
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	go func() {
-		<-quit
-		println()
-		os.Exit(0)
-	}()
-}
-
-func printIP(port string) {
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		panic(err)
-	}
-	for _, i := range ifaces {
-		addrs, err := i.Addrs()
-		if err != nil {
-			panic(err)
-		}
-		for _, addr := range addrs {
-			var ip net.IP
-			switch v := addr.(type) {
-			case *net.IPNet:
-				ip = v.IP
-			case *net.IPAddr:
-				ip = v.IP
-			}
-			if ip.To4() == nil {
-				continue
-			}
-			log.Printf("Listening on (%s) http://%s:%s/", i.Name, ip, port)
-		}
-	}
-}
-
 func main() {
-	var html, dcss, djs []byte
-	var err error
-	{
-		html, err = statik.Asset("public/index.html")
-		ce(err, `statik.Asset("public/index.html")`)
+	html, err := statik.Asset("public/index.html")
+	ce(err, `statik.Asset("public/index.html")`)
+	dcss, err := statik.Asset("public/dropzone.css")
+	ce(err, `statik.Asset("public/dropzone.css")`)
+	djs, err := statik.Asset("public/dropzone.js")
+	ce(err, `statik.Asset("public/dropzone.js")`)
 
-		dcss, err = statik.Asset("public/dropzone.css")
-		ce(err, `statik.Asset("public/dropzone.css")`)
-
-		djs, err = statik.Asset("public/dropzone.js")
-		ce(err, `statik.Asset("public/dropzone.js")`)
-	}
-
+	pathDir := ""
+	port := ""
+	password := ""
+	username := ""
+	noauth := false
+	flag.StringVar(&pathDir, "path", ".", "path to directory to serve")
+	flag.StringVar(&port, "port", "8888", "port to listen on")
+	flag.StringVar(&username, "usr", "", "username for auth")
+	flag.StringVar(&password, "pwd", "", "password for auth")
+	flag.BoolVar(&noauth, "noauth", false, "do not ask for auth")
 	flag.Parse()
+	pathDir, _ = filepath.Abs(pathDir)
 	if noauth == false {
 		askWhile("Username: ", &username)
 		askWhile("Password: ", &password)
@@ -121,7 +76,11 @@ func main() {
 
 	r := gin.Default()
 	r.Use(gin.Recovery())
-	grp := serveGroup(r)
+	opts := []gin.HandlerFunc{}
+	if password != "" && username != "" {
+		opts = append(opts, gin.BasicAuth(gin.Accounts{username: password}))
+	}
+	grp := r.Group("/", opts...)
 	grp.StaticFS("/serve", http.Dir(pathDir))
 	grp.GET("/", func(c *gin.Context) {
 		c.Data(200, "text/html; charsed=ute-8", html)
