@@ -15,8 +15,6 @@ import (
 	"github.com/howeyc/gopass"
 )
 
-var ()
-
 func init() {
 	log.SetPrefix("[SRV] ")
 	log.SetFlags(log.LstdFlags)
