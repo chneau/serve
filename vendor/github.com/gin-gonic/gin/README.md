@@ -145,12 +145,12 @@ func main() {
 			"message": "pong",
 		})
 	})
-	r.Run() // listen and serve on 0.0.0.0:8080
+	r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 ```
 
 ```
-# run example.go and visit 0.0.0.0:8080/ping on browser
+# run example.go and visit 0.0.0.0:8080/ping (for windows "localhost:8080/ping") on browser
 $ go run example.go
 ```
 
@@ -1149,7 +1149,7 @@ func main() {
 
 #### AsciiJSON
 
-Using AsciiJSON to Generates ASCII-only JSON with escaped non-ASCII chracters.
+Using AsciiJSON to Generates ASCII-only JSON with escaped non-ASCII characters.
 
 ```go
 func main() {
