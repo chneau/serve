@@ -75,7 +75,6 @@ func main() {
 }
 
 func web(dir, port, password, username string, auth bool) error {
-	log.Println(auth)
 	gin.SetMode(gin.ReleaseMode)
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
