@@ -30,7 +30,7 @@ func init() {
 // checkError
 func ce(err error, msg string) {
 	if err != nil {
-		log.Panicln(msg, err)
+		log.Fatalln(msg, err)
 	}
 }
 
@@ -61,11 +61,11 @@ func main() {
 			Aliases: []string{"w"},
 			Usage:   "web page serving",
 			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "dir", Value: "."},
-				&cli.StringFlag{Name: "port", Value: "8888"},
-				&cli.StringFlag{Name: "password"},
-				&cli.StringFlag{Name: "username"},
-				&cli.BoolFlag{Name: "auth", Value: true},
+				&cli.StringFlag{Name: "dir", Aliases: []string{"d"}, Value: "."},
+				&cli.StringFlag{Name: "port", Aliases: []string{"n"}, Value: "8888"},
+				&cli.StringFlag{Name: "password", Aliases: []string{"p"}},
+				&cli.StringFlag{Name: "username", Aliases: []string{"u"}},
+				&cli.BoolFlag{Name: "auth", Aliases: []string{"a"}, Value: true},
 			},
 			Action: func(c *cli.Context) error {
 				web(c.String("dir"), c.String("port"), c.String("password"), c.String("username"), c.Bool("auth"))
@@ -75,11 +75,12 @@ func main() {
 	}
 	err := app.Run(os.Args)
 	if err != nil {
-		log.Fatal(err)
+		log.Fatalln(err)
 	}
 }
 
-func web(dir, port, password, username string, auth bool) {
+func web(dir, port, password, username string, auth bool) error {
+	log.Println(auth)
 	gin.SetMode(gin.ReleaseMode)
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
@@ -139,6 +140,5 @@ func web(dir, port, password, username string, auth bool) {
 		zipit(cleanedPath, c.Writer)
 	})
 	printIP(port)
-	err = r.Run(":" + port)
-	ce(err, "http.ListenAndServe")
+	return r.Run(":" + port)
 }
