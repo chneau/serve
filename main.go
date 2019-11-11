@@ -50,11 +50,6 @@ func main() {
 	app.Name = "serve"
 	app.Usage = "serve files from or to another computer"
 	app.Version = "0.0.1"
-	// pathDir := ""
-	// port := ""
-	// password := ""
-	// username := ""
-	// noauth := false
 	app.Commands = []*cli.Command{
 		{
 			Name:    "web",
