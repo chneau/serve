@@ -1,7 +1,6 @@
 package main
 
 import (
-	"flag"
 	"io"
 	"log"
 	"net/http"
@@ -13,15 +12,12 @@ import (
 	"github.com/chneau/serve/pkg/statik"
 	"github.com/gin-gonic/gin"
 	"github.com/howeyc/gopass"
+	"github.com/urfave/cli"
 )
 
 func init() {
 	log.SetPrefix("[SRV] ")
 	log.SetFlags(log.LstdFlags)
-	gin.SetMode(gin.ReleaseMode)
-	if runtime.GOOS == "windows" {
-		gin.DisableConsoleColor()
-	}
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	go func() {
@@ -50,26 +46,52 @@ func askWhile(prompt string, res *string) {
 }
 
 func main() {
+	app := cli.NewApp()
+	app.Name = "serve"
+	app.Usage = "serve files from or to another computer"
+	app.Version = "0.0.1"
+	// pathDir := ""
+	// port := ""
+	// password := ""
+	// username := ""
+	// noauth := false
+	app.Commands = []*cli.Command{
+		{
+			Name:    "web",
+			Aliases: []string{"w"},
+			Usage:   "web page serving",
+			Flags: []cli.Flag{
+				&cli.StringFlag{Name: "dir", Value: "."},
+				&cli.StringFlag{Name: "port", Value: "8888"},
+				&cli.StringFlag{Name: "password"},
+				&cli.StringFlag{Name: "username"},
+				&cli.BoolFlag{Name: "auth", Value: true},
+			},
+			Action: func(c *cli.Context) error {
+				web(c.String("dir"), c.String("port"), c.String("password"), c.String("username"), c.Bool("auth"))
+				return nil
+			},
+		},
+	}
+	err := app.Run(os.Args)
+	if err != nil {
+		log.Fatal(err)
+	}
+}
+
+func web(dir, port, password, username string, auth bool) {
+	gin.SetMode(gin.ReleaseMode)
+	if runtime.GOOS == "windows" {
+		gin.DisableConsoleColor()
+	}
 	html, err := statik.Asset("public/index.html")
 	ce(err, `statik.Asset("public/index.html")`)
 	dcss, err := statik.Asset("public/dropzone.css")
 	ce(err, `statik.Asset("public/dropzone.css")`)
 	djs, err := statik.Asset("public/dropzone.js")
 	ce(err, `statik.Asset("public/dropzone.js")`)
-
-	pathDir := ""
-	port := ""
-	password := ""
-	username := ""
-	noauth := false
-	flag.StringVar(&pathDir, "path", ".", "path to directory to serve")
-	flag.StringVar(&port, "port", "8888", "port to listen on")
-	flag.StringVar(&username, "usr", "", "username for auth")
-	flag.StringVar(&password, "pwd", "", "password for auth")
-	flag.BoolVar(&noauth, "noauth", false, "do not ask for auth")
-	flag.Parse()
-	pathDir, _ = filepath.Abs(pathDir)
-	if noauth == false {
+	dir, _ = filepath.Abs(dir)
+	if auth {
 		askWhile("Username: ", &username)
 		askWhile("Password: ", &password)
 	}
@@ -81,7 +103,7 @@ func main() {
 		opts = append(opts, gin.BasicAuth(gin.Accounts{username: password}))
 	}
 	grp := r.Group("/", opts...)
-	grp.StaticFS("/serve", http.Dir(pathDir))
+	grp.StaticFS("/serve", http.Dir(dir))
 	grp.GET("/", func(c *gin.Context) {
 		c.Data(200, "text/html; charsed=ute-8", html)
 	})
@@ -95,8 +117,8 @@ func main() {
 		file, err := c.FormFile("file")
 		ce(err, "c.FormFile")
 		fullPath := c.PostForm("fullPath")
-		os.MkdirAll(pathDir+"/uploaded_files/"+fullPath[:len(fullPath)-len(file.Filename)], 0777)
-		f, err := os.OpenFile(pathDir+"/uploaded_files/"+fullPath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666)
+		os.MkdirAll(dir+"/uploaded_files/"+fullPath[:len(fullPath)-len(file.Filename)], 0777)
+		f, err := os.OpenFile(dir+"/uploaded_files/"+fullPath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666)
 		ce(err, "os.OpenFile")
 		ff, err := file.Open()
 		ce(err, "file.Open")
@@ -111,7 +133,7 @@ func main() {
 	})
 	grp.GET("/zip/*path", func(c *gin.Context) {
 		p := c.Param("path")
-		cleanedPath := filepath.Clean(pathDir + p)
+		cleanedPath := filepath.Clean(dir + p)
 		header := c.Writer.Header()
 		header["Content-Disposition"] = []string{"attachment; filename= " + filepath.Base(cleanedPath) + ".zip"}
 		zipit(cleanedPath, c.Writer)
