@@ -42,7 +42,9 @@ func ce(err error, msg string) {
 func askWhile(prompt string, res *string) {
 	for *res == "" {
 		b, err := gopass.GetPasswdPrompt(prompt, true, os.Stdin, os.Stdout)
-		ce(err, "gopass.GetPasswdPrompt")
+		if err != nil {
+			os.Exit(0)
+		}
 		*res = string(b)
 	}
 }
