@@ -63,7 +63,16 @@ func main() {
 				&cli.BoolFlag{Name: "auth", Aliases: []string{"a"}, Value: true},
 			},
 			Action: func(c *cli.Context) error {
-				web(c.String("dir"), c.String("port"), c.String("password"), c.String("username"), c.Bool("auth"))
+				auth := c.Bool("auth")
+				username := c.String("username")
+				password := c.String("password")
+				dir := c.String("dir")
+				dir, _ = filepath.Abs(dir)
+				if auth {
+					askWhile("Username: ", &username)
+					askWhile("Password: ", &password)
+				}
+				web(dir, c.String("port"), password, username, auth)
 				return nil
 			},
 		},
@@ -85,12 +94,6 @@ func web(dir, port, password, username string, auth bool) error {
 	ce(err, `statik.Asset("public/dropzone.css")`)
 	djs, err := statik.Asset("public/dropzone.js")
 	ce(err, `statik.Asset("public/dropzone.js")`)
-	dir, _ = filepath.Abs(dir)
-	if auth {
-		askWhile("Username: ", &username)
-		askWhile("Password: ", &password)
-	}
-
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	opts := []gin.HandlerFunc{}
