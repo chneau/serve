@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 
 	"github.com/howeyc/gopass"
+	"github.com/klauspost/compress/zip"
 	"github.com/urfave/cli"
 )
 
@@ -51,7 +52,41 @@ func main() {
 			Aliases:   []string{"s"},
 			ArgsUsage: "[path]",
 			Usage:     "send a folder",
-			Flags:     []cli.Flag{},
+			Flags: []cli.Flag{
+				&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"},
+				&cli.StringFlag{Name: "secret", Aliases: []string{"s"}},
+			},
+			Action: func(c *cli.Context) error {
+				secret := c.String("secret")
+				dir := c.Args().First()
+				if dir == "" {
+					dir = "."
+				}
+				askWhile("Secret: ", &secret)
+				basePath := filepath.Dir(dir)
+				total := uint64(0)
+				filepath.Walk(dir, func(filePath string, fi os.FileInfo, err error) error {
+					if err != nil {
+						return err
+					}
+					relativeFilePath, err := filepath.Rel(basePath, filePath)
+					if err != nil {
+						return err
+					}
+					_ = relativeFilePath
+					if !fi.Mode().IsRegular() {
+						return nil
+					}
+					header, err := zip.FileInfoHeader(fi)
+					if err != nil {
+						return err
+					}
+					total += header.UncompressedSize64
+					return nil
+				})
+				log.Println("total", total)
+				return nil
+			},
 		},
 		{
 			Name:      "web",
@@ -62,10 +97,8 @@ func main() {
 				&cli.StringFlag{Name: "port", Aliases: []string{"n"}, Value: "8888"},
 				&cli.StringFlag{Name: "password", Aliases: []string{"p"}},
 				&cli.StringFlag{Name: "username", Aliases: []string{"u"}},
-				&cli.BoolFlag{Name: "auth", Aliases: []string{"a"}, Value: true},
 			},
 			Action: func(c *cli.Context) error {
-				auth := c.Bool("auth")
 				username := c.String("username")
 				password := c.String("password")
 				dir := c.Args().First()
@@ -73,12 +106,9 @@ func main() {
 					dir = "."
 				}
 				dir, _ = filepath.Abs(dir)
-				if auth {
-					askWhile("Username: ", &username)
-					askWhile("Password: ", &password)
-				}
-				web(dir, c.String("port"), password, username, auth)
-				return nil
+				askWhile("Username: ", &username)
+				askWhile("Password: ", &password)
+				return web(dir, c.String("port"), password, username)
 			},
 		},
 	}
