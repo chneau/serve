@@ -52,11 +52,12 @@ func main() {
 	app.Version = "0.0.1"
 	app.Commands = []*cli.Command{
 		{
-			Name:    "web",
-			Aliases: []string{"w"},
-			Usage:   "web page serving",
+			Name:      "web",
+			Aliases:   []string{"w"},
+			ArgsUsage: "[path]",
+			Usage:     "web page serving",
 			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "dir", Aliases: []string{"d"}, Value: "."},
+				&cli.StringFlag{Name: "dir", Aliases: []string{"d"}},
 				&cli.StringFlag{Name: "port", Aliases: []string{"n"}, Value: "8888"},
 				&cli.StringFlag{Name: "password", Aliases: []string{"p"}},
 				&cli.StringFlag{Name: "username", Aliases: []string{"u"}},
@@ -67,6 +68,12 @@ func main() {
 				username := c.String("username")
 				password := c.String("password")
 				dir := c.String("dir")
+				if dir == "" {
+					dir = c.Args().First()
+				}
+				if dir == "" {
+					dir = "."
+				}
 				dir, _ = filepath.Abs(dir)
 				if auth {
 					askWhile("Username: ", &username)
