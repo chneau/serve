@@ -1,7 +1,10 @@
 package main
 
 import (
+	"bytes"
+	"encoding/binary"
 	"encoding/gob"
+	"io"
 	"log"
 	"net"
 	"os"
@@ -15,7 +18,7 @@ import (
 
 func init() {
 	log.SetPrefix("[SRV] ")
-	log.SetFlags(log.LstdFlags)
+	log.SetFlags(log.LstdFlags | log.Llongfile)
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	go func() {
@@ -45,6 +48,60 @@ func askWhile(prompt string) string {
 	return res
 }
 
+func getBytes(key interface{}) []byte {
+	var buf bytes.Buffer
+	err := gob.NewEncoder(&buf).Encode(key)
+	ce(err, "getBytes")
+	return buf.Bytes()
+}
+
+func getFiles(dir string) map[string]uint64 {
+	files := map[string]uint64{}
+	err := filepath.Walk(dir, func(filePath string, fi os.FileInfo, err error) error {
+		if err != nil {
+			return err
+		}
+		if !fi.Mode().IsRegular() {
+			return nil
+		}
+		header, err := zip.FileInfoHeader(fi)
+		if err != nil {
+			return err
+		}
+		files[filePath] = header.UncompressedSize64
+		return nil
+	})
+	ce(err, "getFiles")
+	return files
+}
+
+func uint64ToBytes(x uint64) []byte {
+	bb := make([]byte, 8)
+	binary.LittleEndian.PutUint64(bb, x)
+	return bb
+}
+
+func uint64FromConn(conn net.Conn) (uint64, error) {
+	b := make([]byte, 8)
+	_, err := conn.Read(b)
+	if err != nil {
+		return 0, err
+	}
+	ce(err, "uint64FromConn")
+	res := binary.LittleEndian.Uint64(b)
+	return res, nil
+}
+
+func filesFromConn(conn net.Conn, size uint64) map[string]uint64 {
+	log.Println(size)
+	b := make([]byte, size)
+	_, err := conn.Read(b)
+	ce(err, "filesFromConn")
+	res := map[string]uint64{}
+	gob.NewDecoder(bytes.NewBuffer(b)).Decode(&res)
+	return res
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "serve"
@@ -60,34 +117,36 @@ func main() {
 				&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"},
 			},
 			Action: func(c *cli.Context) error {
-				dir := c.Args().First()
-				if dir == "" {
-					dir = "."
+				dir, _ := filepath.Rel(".", c.Args().First())
+				// secret := askWhile("Secret: ")
+				// _ = secret
+				files := getFiles(dir)
+				log.Println("len(files)", len(files))
+				b := getBytes(files)
+				log.Println(len(b))
+				listener, err := net.Listen("tcp4", ":"+c.String("port"))
+				ce(err, "net.Listen")
+				conn, err := listener.Accept()
+				ce(err, "listener.Accept")
+				_, err = conn.Write(uint64ToBytes(uint64(len(b))))
+				ce(err, "conn.Write")
+				_, err = conn.Write(b)
+				ce(err, "conn.Write")
+				for file, fsize := range files {
+					ssize := uint64ToBytes(uint64(len(file)))
+					// log.Println("ssize", len(file))
+					_, err = conn.Write(ssize)
+					ce(err, "conn.Write")
+					_, err = conn.Write([]byte(file))
+					ce(err, "conn.Write")
+					_, err = conn.Write(uint64ToBytes(fsize))
+					// log.Println("fsize", fsize)
+					ce(err, "conn.Write")
+					f, err := os.Open(file)
+					ce(err, "os.Open")
+					_, err = io.Copy(conn, f)
+					ce(err, "io.Copy")
 				}
-				dir, _ = filepath.Rel(".", dir)
-				secret := askWhile("Secret: ")
-				_ = secret
-				basePath := filepath.Dir(dir)
-				_ = basePath
-				files := map[string]int{}
-				err := filepath.Walk(dir, func(filePath string, fi os.FileInfo, err error) error {
-					if err != nil {
-						return err
-					}
-					if !fi.Mode().IsRegular() {
-						return nil
-					}
-					header, err := zip.FileInfoHeader(fi)
-					if err != nil {
-						return err
-					}
-					files[filePath] = int(header.UncompressedSize)
-					return nil
-				})
-				if err != nil {
-					return err
-				}
-				log.Println(files)
 				return nil
 			},
 		},
@@ -97,21 +156,37 @@ func main() {
 			ArgsUsage: "[ip]",
 			Usage:     "send a folder",
 			Action: func(c *cli.Context) error {
-				secret := askWhile("Secret: ")
+				// secret := askWhile("Secret: ")
 				conn, err := net.Dial("tcp4", ":8888")
 				if err != nil {
 					return err
 				}
-				_, err = conn.Write([]byte(secret))
+				size, err := uint64FromConn(conn)
 				if err != nil {
 					return err
 				}
-				files := map[string]int{}
-				err = gob.NewDecoder(conn).Decode(&files)
-				if err != nil {
-					return err
+				files := filesFromConn(conn, size)
+				log.Println("len(files)", len(files))
+				for len(files) > 0 {
+					size, err := uint64FromConn(conn)
+					if err != nil {
+						return err
+					}
+					log.Println("ssize", size)
+					b := make([]byte, size)
+					_, err := conn.Read(b)
+					ce(err, "conn.Read")
+					log.Println(string(b))
+					size, err = uint64FromConn(conn)
+					if err != nil {
+						return err
+					}
+					log.Println(size)
+					b = make([]byte, size)
+					_, err = conn.Read(b)
+					ce(err, "conn.Read")
+					delete(files, string(b))
 				}
-				log.Println(files)
 				return nil
 			},
 		},
