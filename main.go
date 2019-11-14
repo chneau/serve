@@ -42,10 +42,7 @@ func main() {
 			Aliases:   []string{"r"},
 			ArgsUsage: "[ip]",
 			Usage:     "send a folder",
-			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"},
-			},
-			Action: receiveAction,
+			Action:    receiveAction,
 		},
 		{
 			Name:      "web",

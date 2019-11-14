@@ -2,11 +2,7 @@ package main
 
 import (
 	"bytes"
-	"encoding/binary"
 	"encoding/gob"
-	"io"
-	"log"
-	"net"
 	"os"
 	"path/filepath"
 
@@ -41,42 +37,8 @@ func getFiles(dir string) map[string]uint64 {
 	return files
 }
 
-func uint64ToBytes(x uint64) []byte {
-	bb := make([]byte, 8)
-	binary.LittleEndian.PutUint64(bb, x)
-	return bb
-}
-
 func sendAction(c *cli.Context) error {
-	dir, _ := filepath.Rel(".", c.Args().First())
-	// secret := askWhile("Secret: ")
-	// _ = secret
-	files := getFiles(dir)
-	log.Println("len(files)", len(files))
-	b := getBytes(files)
-	log.Println(len(b))
-	listener, err := net.Listen("tcp4", ":"+c.String("port"))
-	ce(err, "net.Listen")
-	conn, err := listener.Accept()
-	ce(err, "listener.Accept")
-	_, err = conn.Write(uint64ToBytes(uint64(len(b))))
-	ce(err, "conn.Write")
-	_, err = conn.Write(b)
-	ce(err, "conn.Write")
-	for file, fsize := range files {
-		ssize := uint64ToBytes(uint64(len(file)))
-		// log.Println("ssize", len(file))
-		_, err = conn.Write(ssize)
-		ce(err, "conn.Write")
-		_, err = conn.Write([]byte(file))
-		ce(err, "conn.Write")
-		_, err = conn.Write(uint64ToBytes(fsize))
-		// log.Println("fsize", fsize)
-		ce(err, "conn.Write")
-		f, err := os.Open(file)
-		ce(err, "os.Open")
-		_, err = io.Copy(conn, f)
-		ce(err, "io.Copy")
-	}
+	files := getFiles(".")
+	_ = files
 	return nil
 }
