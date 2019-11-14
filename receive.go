@@ -32,7 +32,7 @@ func receiveAction(c *cli.Context) error {
 	for file := range files {
 		file := file
 		limit.Execute(func() {
-			req, err := http.NewRequest("GET", "http://"+ip+"/fs", strings.NewReader(file))
+			req, err := http.NewRequest("GET", "http://"+ip+"/files", strings.NewReader(file))
 			if err != nil {
 				log.Println(err)
 				return
