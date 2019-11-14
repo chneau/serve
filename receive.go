@@ -8,6 +8,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"time"
 
 	"github.com/chneau/limiter"
 
@@ -61,6 +62,6 @@ func receiveAction(c *cli.Context) error {
 		})
 	}
 	limit.Wait()
-	go http.Get("http://" + ip + "/end")
+	(&http.Client{Timeout: time.Microsecond}).Get("http://" + ip + "/end")
 	return nil
 }
