@@ -3,10 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/gob"
+	"log"
 	"os"
 	"path/filepath"
 
-	"github.com/klauspost/compress/zip"
 	"github.com/urfave/cli"
 )
 
@@ -26,11 +26,7 @@ func getFiles(dir string) map[string]uint64 {
 		if !fi.Mode().IsRegular() {
 			return nil
 		}
-		header, err := zip.FileInfoHeader(fi)
-		if err != nil {
-			return err
-		}
-		files[filePath] = header.UncompressedSize64
+		files[filePath] = uint64(fi.Size())
 		return nil
 	})
 	ce(err, "getFiles")
@@ -39,6 +35,6 @@ func getFiles(dir string) map[string]uint64 {
 
 func sendAction(c *cli.Context) error {
 	files := getFiles(".")
-	_ = files
+	log.Println(files)
 	return nil
 }
