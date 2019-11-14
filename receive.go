@@ -16,6 +16,9 @@ import (
 
 func receiveAction(c *cli.Context) error {
 	ip := c.Args().First()
+	if !strings.Contains(ip, ":") {
+		ip += ":8888"
+	}
 	files := map[string]int64{}
 	{
 		resp, err := http.Get("http://" + ip + "/files")
@@ -58,5 +61,6 @@ func receiveAction(c *cli.Context) error {
 		})
 	}
 	limit.Wait()
+	http.Get("http://" + ip + "/end")
 	return nil
 }

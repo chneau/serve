@@ -11,7 +11,7 @@ import (
 
 func init() {
 	log.SetPrefix("[SRV] ")
-	log.SetFlags(log.LstdFlags | log.Llongfile)
+	log.SetFlags(log.LstdFlags)
 	quit := make(chan os.Signal)
 	signal.Notify(quit, os.Interrupt)
 	go func() {
@@ -42,7 +42,7 @@ func main() {
 			ArgsUsage: "[ip:port]",
 			Usage:     "send a folder",
 			Flags: []cli.Flag{
-				&cli.IntFlag{Name: "concurrence", Aliases: []string{"c"}, Value: 8},
+				&cli.IntFlag{Name: "concurrence", Aliases: []string{"c"}, Value: 100},
 			},
 			Action: receiveAction,
 		},

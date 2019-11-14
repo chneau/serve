@@ -64,6 +64,7 @@ func sendAction(c *cli.Context) error {
 			return
 		}
 	})
+	r.GET("/end", func(_ *gin.Context) { os.Exit(0) })
 	printIP(port)
 	return r.Run(":" + port)
 }
