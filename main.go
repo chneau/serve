@@ -41,7 +41,10 @@ func main() {
 			Aliases:   []string{"r"},
 			ArgsUsage: "[ip:port]",
 			Usage:     "send a folder",
-			Action:    receiveAction,
+			Flags: []cli.Flag{
+				&cli.IntFlag{Name: "concurrence", Aliases: []string{"c"}, Value: 8},
+			},
+			Action: receiveAction,
 		},
 		{
 			Name:      "web",

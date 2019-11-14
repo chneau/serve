@@ -28,7 +28,7 @@ func receiveAction(c *cli.Context) error {
 		}
 		defer resp.Body.Close()
 	}
-	limit := limiter.New(8)
+	limit := limiter.New(c.Int("concurrence"))
 	for file := range files {
 		file := file
 		limit.Execute(func() {
