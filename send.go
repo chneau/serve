@@ -44,7 +44,6 @@ func sendAction(c *cli.Context) error {
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
 	}
-	printIP(port)
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.GET("/files", func(c *gin.Context) {
@@ -74,5 +73,6 @@ func sendAction(c *cli.Context) error {
 			return
 		}
 	})
+	printIP(port)
 	return r.Run(":" + port)
 }
