@@ -3,10 +3,14 @@ package main
 import (
 	"bytes"
 	"encoding/gob"
-	"log"
+	"errors"
+	"io"
+	"io/ioutil"
 	"os"
 	"path/filepath"
+	"runtime"
 
+	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli"
 )
 
@@ -35,6 +39,40 @@ func getFiles(dir string) map[string]uint64 {
 
 func sendAction(c *cli.Context) error {
 	files := getFiles(".")
-	log.Println(files)
-	return nil
+	port := c.String("port")
+	gin.SetMode(gin.ReleaseMode)
+	if runtime.GOOS == "windows" {
+		gin.DisableConsoleColor()
+	}
+	printIP(port)
+	r := gin.Default()
+	r.Use(gin.Recovery())
+	r.GET("/files", func(c *gin.Context) {
+		b, err := ioutil.ReadAll(c.Request.Body)
+		if err != nil {
+			c.Error(err)
+			return
+		}
+		if len(b) == 0 {
+			c.JSON(200, files)
+			return
+		}
+		filename := string(b)
+		if _, exist := files[filename]; !exist {
+			c.Error(errors.New("the file requested does not exist"))
+			return
+		}
+		f, err := os.Open(filename)
+		if err != nil {
+			c.Error(err)
+			return
+		}
+		defer f.Close()
+		_, err = io.Copy(c.Writer, f)
+		if err != nil {
+			c.Error(err)
+			return
+		}
+	})
+	return r.Run(":" + port)
 }
