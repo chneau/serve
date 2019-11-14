@@ -1,8 +1,6 @@
 package main
 
 import (
-	"bytes"
-	"encoding/gob"
 	"errors"
 	"io"
 	"io/ioutil"
@@ -13,13 +11,6 @@ import (
 	"github.com/gin-gonic/gin"
 	"github.com/urfave/cli"
 )
-
-func getBytes(key interface{}) []byte {
-	var buf bytes.Buffer
-	err := gob.NewEncoder(&buf).Encode(key)
-	ce(err, "getBytes")
-	return buf.Bytes()
-}
 
 func getFiles(dir string) map[string]uint64 {
 	files := map[string]uint64{}
