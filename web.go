@@ -9,6 +9,7 @@ import (
 
 	"github.com/chneau/serve/pkg/statik"
 	"github.com/gin-gonic/gin"
+	"github.com/urfave/cli"
 )
 
 func web(dir, port, password, username string) error {
@@ -68,4 +69,15 @@ func web(dir, port, password, username string) error {
 	})
 	printIP(port)
 	return r.Run(":" + port)
+}
+
+func webAction(c *cli.Context) error {
+	dir := c.Args().First()
+	if dir == "" {
+		dir = "."
+	}
+	dir, _ = filepath.Abs(dir)
+	username := askWhile("Username: ")
+	password := askWhile("Password: ")
+	return web(dir, c.String("port"), password, username)
 }
