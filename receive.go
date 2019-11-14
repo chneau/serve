@@ -33,7 +33,7 @@ func filesFromConn(conn net.Conn, size uint64) map[string]uint64 {
 
 func receiveAction(c *cli.Context) error {
 	// secret := askWhile("Secret: ")
-	conn, err := net.Dial("tcp4", ":8888")
+	conn, err := net.Dial("tcp4", ":"+c.String("port"))
 	if err != nil {
 		return err
 	}

@@ -9,6 +9,18 @@ import (
 	"github.com/urfave/cli"
 )
 
+func init() {
+	log.SetPrefix("[SRV] ")
+	log.SetFlags(log.LstdFlags | log.Llongfile)
+	quit := make(chan os.Signal)
+	signal.Notify(quit, os.Interrupt)
+	go func() {
+		<-quit
+		println()
+		os.Exit(0)
+	}()
+}
+
 func main() {
 	app := cli.NewApp()
 	app.Name = "serve"
@@ -30,7 +42,10 @@ func main() {
 			Aliases:   []string{"r"},
 			ArgsUsage: "[ip]",
 			Usage:     "send a folder",
-			Action:    receiveAction,
+			Flags: []cli.Flag{
+				&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"},
+			},
+			Action: receiveAction,
 		},
 		{
 			Name:      "web",
@@ -47,18 +62,6 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
-}
-
-func init() {
-	log.SetPrefix("[SRV] ")
-	log.SetFlags(log.LstdFlags | log.Llongfile)
-	quit := make(chan os.Signal)
-	signal.Notify(quit, os.Interrupt)
-	go func() {
-		<-quit
-		println()
-		os.Exit(0)
-	}()
 }
 
 // checkError
