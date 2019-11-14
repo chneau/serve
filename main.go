@@ -28,10 +28,9 @@ func main() {
 	app.Version = "0.0.1"
 	app.Commands = []*cli.Command{
 		{
-			Name:      "send",
-			Aliases:   []string{"s"},
-			ArgsUsage: "[path]",
-			Usage:     "send a folder",
+			Name:    "send",
+			Aliases: []string{"s"},
+			Usage:   "send a folder",
 			Flags: []cli.Flag{
 				&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"},
 			},
@@ -40,7 +39,7 @@ func main() {
 		{
 			Name:      "receive",
 			Aliases:   []string{"r"},
-			ArgsUsage: "[ip]",
+			ArgsUsage: "[ip:port]",
 			Usage:     "send a folder",
 			Action:    receiveAction,
 		},
