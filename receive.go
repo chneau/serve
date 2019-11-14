@@ -61,6 +61,6 @@ func receiveAction(c *cli.Context) error {
 		})
 	}
 	limit.Wait()
-	http.Get("http://" + ip + "/end")
+	go http.Get("http://" + ip + "/end")
 	return nil
 }
