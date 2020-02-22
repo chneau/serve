@@ -40,7 +40,7 @@ func sendAction(c *cli.Context) error {
 	r.GET("/files", func(c *gin.Context) {
 		b, err := ioutil.ReadAll(c.Request.Body)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			return
 		}
 		if len(b) == 0 {
@@ -49,18 +49,18 @@ func sendAction(c *cli.Context) error {
 		}
 		filename := string(b)
 		if _, exist := files[filename]; !exist {
-			c.Error(errors.New("the file requested does not exist"))
+			_ = c.Error(errors.New("the file requested does not exist"))
 			return
 		}
 		f, err := os.Open(filename)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			return
 		}
 		defer f.Close()
 		_, err = io.Copy(c.Writer, f)
 		if err != nil {
-			c.Error(err)
+			_ = c.Error(err)
 			return
 		}
 	})

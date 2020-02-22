@@ -47,7 +47,7 @@ func receiveAction(c *cli.Context) error {
 				return
 			}
 			defer resp.Body.Close()
-			os.MkdirAll(filepath.Dir(file), 0755)
+			_ = os.MkdirAll(filepath.Dir(file), 0755)
 			f, err := os.OpenFile(file, os.O_RDWR|os.O_CREATE, 0755)
 			if err != nil {
 				log.Println(err)
@@ -62,6 +62,6 @@ func receiveAction(c *cli.Context) error {
 		})
 	}
 	limit.Wait()
-	(&http.Client{Timeout: time.Microsecond}).Get("http://" + ip + "/end")
+	_, _ = (&http.Client{Timeout: time.Microsecond}).Get("http://" + ip + "/end")
 	return nil
 }
