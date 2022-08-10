@@ -23,6 +23,7 @@ func sendFileAction(c *cli.Context) error {
 		f := lo.Must(os.Open(fileName))
 		defer f.Close()
 		lo.Must(io.Copy(c.Writer, f))
+		defer os.Exit(0)
 	})
 	printIP(port)
 	return r.Run(":" + port)
