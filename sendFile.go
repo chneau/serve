@@ -23,10 +23,9 @@ func sendFileAction(c *cli.Context) error {
 		return fmt.Sprintf("%s %s\r", bar(progress, total), ioprogress.DrawTextFormatBytes(progress, total))
 	}
 	r.GET("/", func(c *gin.Context) {
-		header := c.Writer.Header()
-		header["Content-Type"] = []string{"application/octet-stream"}
-		header["Content-Length"] = []string{strconv.FormatInt(fileInfo.Size(), 10)}
-		header["Content-Disposition"] = []string{"attachment; filename=" + fileInfo.Name()}
+		c.Header("Content-Type", "application/octet-stream")
+		c.Header("Content-Disposition", "attachment; filename="+fileInfo.Name())
+		c.Header("Content-Length", strconv.FormatInt(fileInfo.Size(), 10))
 		f := lo.Must(os.Open(fileName))
 		defer f.Close()
 		lo.Must(io.Copy(c.Writer, &ioprogress.Reader{
