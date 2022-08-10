@@ -12,21 +12,17 @@ go install github.com/chneau/serve@latest
 
 ```
 NAME:
-   serve - serve files from or to another computer
+   serve - serve a file for direct download
 
 USAGE:
-   serve.exe [global options] command [command options] [arguments...]
-
-VERSION:
-   0.0.1
+   serve.exe [global options] command [command options] [path]
 
 COMMANDS:
-   send, s     send a folder
+   send, s     send a folder using `serve receive`
    receive, r  send a folder
-   web, w      web to download or upload files
+   web, w      web server to download or upload files
    help, h     Shows a list of commands or help for one command
 
 GLOBAL OPTIONS:
-   --help, -h     show help (default: false)
-   --version, -v  print the version (default: false)
+   --help, -h  show help (default: false)
 ```

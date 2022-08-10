@@ -15,13 +15,13 @@ func init() {
 func main() {
 	app := cli.NewApp()
 	app.Name = "serve"
-	app.Usage = "serve files from or to another computer"
+	app.Usage = "serve a file for direct download"
 	app.Commands = []*cli.Command{
 		{
 			Name:      "send",
 			Aliases:   []string{"s"},
 			ArgsUsage: "[port]",
-			Usage:     "send a folder",
+			Usage:     "send a folder using `serve receive`",
 			Action:    sendAction,
 		},
 		{
@@ -35,7 +35,7 @@ func main() {
 			Name:      "web",
 			Aliases:   []string{"w"},
 			ArgsUsage: "[path]",
-			Usage:     "web to download or upload files",
+			Usage:     "web server to download or upload files",
 			Flags:     []cli.Flag{&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"}},
 			Action:    webAction,
 		},
