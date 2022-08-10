@@ -32,30 +32,23 @@ func main() {
 			Name:    "send",
 			Aliases: []string{"s"},
 			Usage:   "send a folder",
-			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"},
-			},
-			Action: sendAction,
+			Flags:   []cli.Flag{&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"}},
+			Action:  sendAction,
 		},
 		{
 			Name:      "receive",
 			Aliases:   []string{"r"},
 			ArgsUsage: "[ip:port]",
 			Usage:     "send a folder",
-			Flags: []cli.Flag{
-				&cli.IntFlag{Name: "concurrence", Aliases: []string{"c"}, Value: 100},
-			},
-			Action: receiveAction,
+			Action:    receiveAction,
 		},
 		{
 			Name:      "web",
 			Aliases:   []string{"w"},
 			ArgsUsage: "[path]",
 			Usage:     "web page serving",
-			Flags: []cli.Flag{
-				&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"},
-			},
-			Action: webAction,
+			Flags:     []cli.Flag{&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"}},
+			Action:    webAction,
 		},
 	}
 	app.Action = func(c *cli.Context) error {
