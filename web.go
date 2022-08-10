@@ -9,7 +9,6 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
-	"github.com/howeyc/gopass"
 	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
 )
@@ -23,7 +22,7 @@ var dcss []byte
 //go:embed public/dropzone.js
 var djs []byte
 
-func web(dir, port, password, username string) error {
+func web(dir, port string) error {
 	gin.SetMode(gin.ReleaseMode)
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
@@ -69,17 +68,6 @@ func webAction(c *cli.Context) error {
 	if dir == "" {
 		dir = "."
 	}
-	dir, _ = filepath.Abs(dir)
-	username := askWhile("Username: ")
-	password := askWhile("Password: ")
-	return web(dir, c.String("port"), password, username)
-}
-
-func askWhile(prompt string) string {
-	res := ""
-	for res == "" {
-		b := lo.Must(gopass.GetPasswdPrompt(prompt, true, os.Stdin, os.Stdout))
-		res = string(b)
-	}
-	return res
+	dir = lo.Must(filepath.Abs(dir))
+	return web(dir, c.String("port"))
 }
