@@ -14,7 +14,7 @@ func zipit(inFilePath string, target io.Writer) {
 	basePath := filepath.Dir(inFilePath)
 	zw := zip.NewWriter(target)
 	defer zw.Close()
-	filepath.Walk(inFilePath, func(filePath string, fi os.FileInfo, _ error) error {
+	lo.Must0(filepath.Walk(inFilePath, func(filePath string, fi os.FileInfo, _ error) error {
 		relativeFilePath := lo.Must(filepath.Rel(basePath, filePath))
 		if !fi.Mode().IsRegular() {
 			return nil
@@ -27,5 +27,5 @@ func zipit(inFilePath string, target io.Writer) {
 		defer f.Close()
 		lo.Must(io.Copy(wh, f))
 		return nil
-	})
+	}))
 }
