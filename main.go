@@ -6,6 +6,7 @@ import (
 	"os/signal"
 
 	"github.com/howeyc/gopass"
+	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
 )
 
@@ -57,17 +58,11 @@ func main() {
 			Action: webAction,
 		},
 	}
-	err := app.Run(os.Args)
-	if err != nil {
-		log.Fatalln(err)
+	app.Action = func(c *cli.Context) error {
+		log.Println("Welcome to serve!")
+		return nil
 	}
-}
-
-// checkError
-func ce(err error, msg string) {
-	if err != nil {
-		log.Fatalln(msg, err)
-	}
+	lo.Must0(app.Run(os.Args))
 }
 
 // Ask something to hide secretly to the user

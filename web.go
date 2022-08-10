@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
 )
 
@@ -44,19 +45,14 @@ func web(dir, port, password, username string) error {
 		c.Data(200, "text/css; charsed=ute-8", dcss)
 	})
 	grp.POST("/upload", func(c *gin.Context) {
-		file, err := c.FormFile("file")
-		ce(err, "c.FormFile")
+		file := lo.Must(c.FormFile("file"))
 		fullPath := c.PostForm("fullPath")
-		err = os.MkdirAll(dir+"/uploaded_files/"+fullPath[:len(fullPath)-len(file.Filename)], 0777)
-		ce(err, "os.MkdirAll")
-		f, err := os.OpenFile(dir+"/uploaded_files/"+fullPath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666)
-		ce(err, "os.OpenFile")
-		ff, err := file.Open()
-		ce(err, "file.Open")
-		written, err := io.Copy(f, ff)
-		ce(err, "io.Copy")
-		ce(ff.Close(), "ff.Close()")
-		ce(f.Close(), "f.Close()")
+		lo.Must0(os.MkdirAll(dir+"/uploaded_files/"+fullPath[:len(fullPath)-len(file.Filename)], 0777))
+		f := lo.Must(os.OpenFile(dir+"/uploaded_files/"+fullPath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666))
+		defer lo.Must0(f.Close())
+		ff := lo.Must(file.Open())
+		defer lo.Must0(ff.Close())
+		written := lo.Must(io.Copy(f, ff))
 		if written != file.Size {
 			c.Status(406)
 		}
@@ -67,8 +63,7 @@ func web(dir, port, password, username string) error {
 		cleanedPath := filepath.Clean(dir + p)
 		header := c.Writer.Header()
 		header["Content-Disposition"] = []string{"attachment; filename= " + filepath.Base(cleanedPath) + ".zip"}
-		err := zipit(cleanedPath, c.Writer)
-		ce(err, "zipit")
+		lo.Must0(zipit(cleanedPath, c.Writer))
 	})
 	printIP(port)
 	return r.Run(":" + port)

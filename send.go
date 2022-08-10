@@ -8,12 +8,13 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
 )
 
 func getFiles(dir string) map[string]uint64 {
 	files := map[string]uint64{}
-	err := filepath.Walk(dir, func(filePath string, fi os.FileInfo, err error) error {
+	lo.Must0(filepath.Walk(dir, func(filePath string, fi os.FileInfo, err error) error {
 		if err != nil {
 			return err
 		}
@@ -22,8 +23,7 @@ func getFiles(dir string) map[string]uint64 {
 		}
 		files[filePath] = uint64(fi.Size())
 		return nil
-	})
-	ce(err, "getFiles")
+	}))
 	return files
 }
 
