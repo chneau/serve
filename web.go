@@ -9,6 +9,7 @@ import (
 	"runtime"
 
 	"github.com/gin-gonic/gin"
+	"github.com/howeyc/gopass"
 	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
 )
@@ -78,4 +79,13 @@ func webAction(c *cli.Context) error {
 	username := askWhile("Username: ")
 	password := askWhile("Password: ")
 	return web(dir, c.String("port"), password, username)
+}
+
+func askWhile(prompt string) string {
+	res := ""
+	for res == "" {
+		b := lo.Must(gopass.GetPasswdPrompt(prompt, true, os.Stdin, os.Stdout))
+		res = string(b)
+	}
+	return res
 }

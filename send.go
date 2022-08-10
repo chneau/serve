@@ -29,13 +29,15 @@ func getFiles(dir string) map[string]uint64 {
 
 func sendAction(c *cli.Context) error {
 	files := getFiles(".")
-	port := c.String("port")
+	port := c.Args().First()
+	if port == "" {
+		port = "8888"
+	}
 	gin.SetMode(gin.ReleaseMode)
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
 	}
 	r := gin.Default()
-	r.Use(gin.Recovery())
 	r.GET("/files", func(c *gin.Context) {
 		b, err := io.ReadAll(c.Request.Body)
 		if err != nil {

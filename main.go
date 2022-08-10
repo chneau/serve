@@ -1,26 +1,11 @@
 package main
 
 import (
-	"log"
 	"os"
-	"os/signal"
 
-	"github.com/howeyc/gopass"
 	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
 )
-
-func init() {
-	log.SetPrefix("[SRV] ")
-	log.SetFlags(log.LstdFlags)
-	quit := make(chan os.Signal, 1)
-	signal.Notify(quit, os.Interrupt)
-	go func() {
-		<-quit
-		println()
-		os.Exit(0)
-	}()
-}
 
 func main() {
 	app := cli.NewApp()
@@ -29,11 +14,11 @@ func main() {
 	app.Version = "0.0.1"
 	app.Commands = []*cli.Command{
 		{
-			Name:    "send",
-			Aliases: []string{"s"},
-			Usage:   "send a folder",
-			Flags:   []cli.Flag{&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"}},
-			Action:  sendAction,
+			Name:      "send",
+			Aliases:   []string{"s"},
+			ArgsUsage: "[port]",
+			Usage:     "send a folder",
+			Action:    sendAction,
 		},
 		{
 			Name:      "receive",
@@ -46,24 +31,10 @@ func main() {
 			Name:      "web",
 			Aliases:   []string{"w"},
 			ArgsUsage: "[path]",
-			Usage:     "web page serving",
+			Usage:     "web to download or upload files",
 			Flags:     []cli.Flag{&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"}},
 			Action:    webAction,
 		},
 	}
-	app.Action = func(c *cli.Context) error {
-		log.Println("Welcome to serve!")
-		return nil
-	}
 	lo.Must0(app.Run(os.Args))
-}
-
-// Ask something to hide secretly to the user
-func askWhile(prompt string) string {
-	res := ""
-	for res == "" {
-		b := lo.Must(gopass.GetPasswdPrompt(prompt, true, os.Stdin, os.Stdout))
-		res = string(b)
-	}
-	return res
 }
