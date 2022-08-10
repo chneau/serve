@@ -5,6 +5,7 @@ go 1.19
 require (
 	github.com/gin-gonic/gin v1.8.1
 	github.com/klauspost/compress v1.15.9
+	github.com/mdp/qrterminal/v3 v3.0.0
 	github.com/samber/lo v1.27.0
 	github.com/urfave/cli/v2 v2.11.1
 )
@@ -32,4 +33,5 @@ require (
 	golang.org/x/text v0.3.7 // indirect
 	google.golang.org/protobuf v1.28.1 // indirect
 	gopkg.in/yaml.v2 v2.4.0 // indirect
+	rsc.io/qr v0.2.0 // indirect
 )
