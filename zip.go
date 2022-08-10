@@ -10,11 +10,11 @@ import (
 	"github.com/samber/lo"
 )
 
-func zipit(inFilePath string, target io.Writer) error {
+func zipit(inFilePath string, target io.Writer) {
 	basePath := filepath.Dir(inFilePath)
 	zw := zip.NewWriter(target)
 	defer zw.Close()
-	return filepath.Walk(inFilePath, func(filePath string, fi os.FileInfo, _ error) error {
+	filepath.Walk(inFilePath, func(filePath string, fi os.FileInfo, _ error) error {
 		relativeFilePath := lo.Must(filepath.Rel(basePath, filePath))
 		if !fi.Mode().IsRegular() {
 			return nil

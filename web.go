@@ -22,7 +22,7 @@ var dcss []byte
 //go:embed public/dropzone.js
 var djs []byte
 
-func web(dir, port string) error {
+func web(dir, port string) {
 	gin.SetMode(gin.ReleaseMode)
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
@@ -57,10 +57,10 @@ func web(dir, port string) error {
 		cleanedPath := filepath.Clean(dir + p)
 		header := c.Writer.Header()
 		header["Content-Disposition"] = []string{"attachment; filename= " + filepath.Base(cleanedPath) + ".zip"}
-		lo.Must0(zipit(cleanedPath, c.Writer))
+		zipit(cleanedPath, c.Writer)
 	})
 	printIP(port)
-	return r.Run(":" + port)
+	lo.Must0(r.Run(":" + port))
 }
 
 func webAction(c *cli.Context) error {
@@ -69,5 +69,6 @@ func webAction(c *cli.Context) error {
 		dir = "."
 	}
 	dir = lo.Must(filepath.Abs(dir))
-	return web(dir, c.String("port"))
+	web(dir, c.String("port"))
+	return nil
 }
