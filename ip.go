@@ -3,13 +3,12 @@ package main
 import (
 	"log"
 	"net"
+
+	"github.com/samber/lo"
 )
 
 func GetOutboundIP() net.IP {
-	conn, err := net.Dial("udp", "8.8.8.8:80")
-	if err != nil {
-		log.Fatal(err)
-	}
+	conn := lo.Must(net.Dial("udp", "8.8.8.8:80"))
 	defer conn.Close()
 
 	localAddr := conn.LocalAddr().(*net.UDPAddr)

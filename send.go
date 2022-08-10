@@ -14,10 +14,7 @@ import (
 
 func getFiles(dir string) map[string]uint64 {
 	files := map[string]uint64{}
-	lo.Must0(filepath.Walk(dir, func(filePath string, fi os.FileInfo, err error) error {
-		if err != nil {
-			return err
-		}
+	lo.Must0(filepath.Walk(dir, func(filePath string, fi os.FileInfo, _ error) error {
 		if !fi.Mode().IsRegular() {
 			return nil
 		}
@@ -39,11 +36,7 @@ func sendAction(c *cli.Context) error {
 	}
 	r := gin.Default()
 	r.GET("/files", func(c *gin.Context) {
-		b, err := io.ReadAll(c.Request.Body)
-		if err != nil {
-			_ = c.Error(err)
-			return
-		}
+		b := lo.Must(io.ReadAll(c.Request.Body))
 		if len(b) == 0 {
 			c.JSON(200, files)
 			return
@@ -53,17 +46,9 @@ func sendAction(c *cli.Context) error {
 			_ = c.Error(errors.New("the file requested does not exist"))
 			return
 		}
-		f, err := os.Open(filename)
-		if err != nil {
-			_ = c.Error(err)
-			return
-		}
+		f := lo.Must(os.Open(filename))
 		defer f.Close()
-		_, err = io.Copy(c.Writer, f)
-		if err != nil {
-			_ = c.Error(err)
-			return
-		}
+		lo.Must(io.Copy(c.Writer, f))
 	})
 	r.GET("/end", func(c *gin.Context) {
 		c.Writer.Flush()
