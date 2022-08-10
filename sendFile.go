@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -23,6 +24,7 @@ func sendFileAction(c *cli.Context) error {
 		return fmt.Sprintf("%s %s\r", bar(progress, total), ioprogress.DrawTextFormatBytes(progress, total))
 	}
 	r.GET("/", func(c *gin.Context) {
+		c.Status(http.StatusOK)
 		c.Header("Content-Type", "application/octet-stream")
 		c.Header("Content-Disposition", "attachment; filename="+fileInfo.Name())
 		c.Header("Content-Length", strconv.FormatInt(fileInfo.Size(), 10))
