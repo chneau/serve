@@ -29,23 +29,17 @@ func web(dir, port, password, username string) error {
 		gin.DisableConsoleColor()
 	}
 	r := gin.Default()
-	r.Use(gin.Recovery())
-	opts := []gin.HandlerFunc{}
-	if password != "" && username != "" {
-		opts = append(opts, gin.BasicAuth(gin.Accounts{username: password}))
-	}
-	grp := r.Group("/", opts...)
-	grp.StaticFS("/serve", http.Dir(dir))
-	grp.GET("/", func(c *gin.Context) {
+	r.StaticFS("/serve", http.Dir(dir))
+	r.GET("/", func(c *gin.Context) {
 		c.Data(200, "text/html; charsed=ute-8", html)
 	})
-	grp.GET("/dropzone.js", func(c *gin.Context) {
+	r.GET("/dropzone.js", func(c *gin.Context) {
 		c.Data(200, "text/javascript; charsed=ute-8", djs)
 	})
-	grp.GET("/dropzone.css", func(c *gin.Context) {
+	r.GET("/dropzone.css", func(c *gin.Context) {
 		c.Data(200, "text/css; charsed=ute-8", dcss)
 	})
-	grp.POST("/upload", func(c *gin.Context) {
+	r.POST("/upload", func(c *gin.Context) {
 		file := lo.Must(c.FormFile("file"))
 		fullPath := c.PostForm("fullPath")
 		lo.Must0(os.MkdirAll(dir+"/uploaded_files/"+fullPath[:len(fullPath)-len(file.Filename)], 0777))
@@ -59,7 +53,7 @@ func web(dir, port, password, username string) error {
 		}
 		c.Status(201)
 	})
-	grp.GET("/zip/*path", func(c *gin.Context) {
+	r.GET("/zip/*path", func(c *gin.Context) {
 		p := c.Param("path")
 		cleanedPath := filepath.Clean(dir + p)
 		header := c.Writer.Header()

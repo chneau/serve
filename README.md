@@ -1,35 +1,32 @@
 # serve
-A VERY simple http server, WITH BASIC AUTH AS DEFAULT !  
-Will setup an upload server and a static server.
+
+A simple static file server, to download or upload.
 
 ### Install
+
 ```
-go get -u -v github.com/chneau/serve/...
+go install github.com/chneau/serve@latest
 ```
 
 ### Usage
-```
-Usage of serve:
-  -noauth
-        do not ask for auth
-  -path string
-        path to directory to serve (default ".")
-  -port string
-        port to listen on (default "8888")
-  -pwd string
-        password for auth
-  -usr string
-        username for auth
-```
 
-### Example
 ```
-Username: *******
-Password: *********
-Serving files from  .
-Listening on http://c:8888/serve
-	http://localhost:8888/serve
-Listening on http://c:8888/upload
-	http://localhost:8888/upload
+NAME:
+   serve - serve files from or to another computer
 
+USAGE:
+   serve.exe [global options] command [command options] [arguments...]
+
+VERSION:
+   0.0.1
+
+COMMANDS:
+   send, s     send a folder
+   receive, r  send a folder
+   web, w      web to download or upload files
+   help, h     Shows a list of commands or help for one command
+
+GLOBAL OPTIONS:
+   --help, -h     show help (default: false)
+   --version, -v  print the version (default: false)
 ```
