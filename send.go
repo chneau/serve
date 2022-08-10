@@ -3,13 +3,12 @@ package main
 import (
 	"errors"
 	"io"
-	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
 
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func getFiles(dir string) map[string]uint64 {
@@ -38,7 +37,7 @@ func sendAction(c *cli.Context) error {
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	r.GET("/files", func(c *gin.Context) {
-		b, err := ioutil.ReadAll(c.Request.Body)
+		b, err := io.ReadAll(c.Request.Body)
 		if err != nil {
 			_ = c.Error(err)
 			return

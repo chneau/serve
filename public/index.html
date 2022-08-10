@@ -1,78 +1,74 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-    <meta charset="utf-8" />
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Upload</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <link rel="stylesheet" href="/dropzone.css" media="none" onload="if(media!='all')media='all'">
+    <link rel="stylesheet" href="/dropzone.css" media="none" onload="if(media!='all')media='all'" />
     <style>
-        body {
-            background: #E8E9EC;
-        }
+      body {
+        background: #e8e9ec;
+      }
 
-        .dropzone {
-            border: 2px dashed #0087F7;
-            border-radius: 5px;
-            background: white;
-        }
+      .dropzone {
+        border: 2px dashed #0087f7;
+        border-radius: 5px;
+        background: white;
+      }
 
-        .dropzone .dz-message {
-            font-weight: 400;
-        }
+      .dropzone .dz-message {
+        font-weight: 400;
+      }
 
-        .dropzone .dz-message .note {
-            font-size: 0.8em;
-            font-weight: 200;
-            display: block;
-            margin-top: 1.4rem;
-        }
+      .dropzone .dz-message .note {
+        font-size: 0.8em;
+        font-weight: 200;
+        display: block;
+        margin-top: 1.4rem;
+      }
 
-        h1,
-        h2,
-        h3,
-        table th,
-        table th .header {
-            font-size: 1.8rem;
-            color: #0087F7;
-            -webkit-font-smoothing: antialiased;
-            line-height: 2.2rem;
-        }
+      h1,
+      h2,
+      h3,
+      table th,
+      table th .header {
+        font-size: 1.8rem;
+        color: #0087f7;
+        -webkit-font-smoothing: antialiased;
+        line-height: 2.2rem;
+      }
     </style>
     <script src="/dropzone.js"></script>
     <script>
-        Dropzone.options.myAwesomeDropzone = {
-            paramName: "file",
-            maxFilesize: 999999,
-            uploadMultiple: false,
-            parallelUploads: 10,
-            sending(file, xhr, formData) {
-                formData.append("fullPath", file.fullPath || file.name);
-            },
-            init() {
-                this.on("complete", function (file) {
-                    if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
-                        serve.contentWindow.location.reload(true);
-                    }
-                });
+      Dropzone.options.myAwesomeDropzone = {
+        paramName: "file",
+        maxFilesize: 999999,
+        uploadMultiple: false,
+        parallelUploads: 10,
+        sending(file, xhr, formData) {
+          formData.append("fullPath", file.fullPath || file.name);
+        },
+        init() {
+          this.on("complete", function (file) {
+            if (this.getUploadingFiles().length === 0 && this.getQueuedFiles().length === 0) {
+              serve.contentWindow.location.reload(true);
             }
-        };
-        window.zip = () => window.open(`/zip${serve.contentWindow.location.pathname.substring(6)}`, '_blank');
-        window.onload = () => serve.src = `/serve/?r=${Math.random()}`;
+          });
+        },
+      };
+      window.zip = () => window.open(`/zip${serve.contentWindow.location.pathname.substring(6)}`, "_blank");
+      window.onload = () => (serve.src = `/serve/?r=${Math.random()}`);
     </script>
-</head>
+  </head>
 
-<body>
-    <input type="button" value="⬅️"
-        onclick="if(serve.contentWindow.location.pathname != '/serve/'){serve.contentWindow.history.back()}">
-    <input type="button" value="🏠"
-        onclick="serve.contentWindow.location.reload(true);serve.contentWindow.location='/serve/'">
-    <input type="button" value="➡️" onclick="serve.contentWindow.history.forward()">
-    <input type="button" value=".zip" onclick="zip()">
+  <body>
+    <input type="button" value="⬅️" onclick="if(serve.contentWindow.location.pathname != '/serve/'){serve.contentWindow.history.back()}" />
+    <input type="button" value="🏠" onclick="serve.contentWindow.location.reload(true);serve.contentWindow.location='/serve/'" />
+    <input type="button" value="➡️" onclick="serve.contentWindow.history.forward()" />
+    <input type="button" value=".zip" onclick="zip()" />
     <a href="/serve/">serve only</a>
-    <iframe id="serve" height="500px" width="100%"></iframe>
+    <iframe id="serve" height="500px" width="100%" title="remote"></iframe>
     <form action="/upload" class="dropzone needsclick dz-clickable" id="my-awesome-dropzone"></form>
-</body>
-
+  </body>
 </html>

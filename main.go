@@ -6,13 +6,13 @@ import (
 	"os/signal"
 
 	"github.com/howeyc/gopass"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func init() {
 	log.SetPrefix("[SRV] ")
 	log.SetFlags(log.LstdFlags)
-	quit := make(chan os.Signal)
+	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, os.Interrupt)
 	go func() {
 		<-quit

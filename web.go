@@ -1,28 +1,31 @@
 package main
 
 import (
+	_ "embed"
 	"io"
 	"net/http"
 	"os"
 	"path/filepath"
 	"runtime"
 
-	"github.com/chneau/serve/pkg/statik"
 	"github.com/gin-gonic/gin"
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
+
+//go:embed public/index.html
+var html []byte
+
+//go:embed public/dropzone.css
+var dcss []byte
+
+//go:embed public/dropzone.js
+var djs []byte
 
 func web(dir, port, password, username string) error {
 	gin.SetMode(gin.ReleaseMode)
 	if runtime.GOOS == "windows" {
 		gin.DisableConsoleColor()
 	}
-	html, err := statik.Asset("public/index.html")
-	ce(err, `statik.Asset("public/index.html")`)
-	dcss, err := statik.Asset("public/dropzone.css")
-	ce(err, `statik.Asset("public/dropzone.css")`)
-	djs, err := statik.Asset("public/dropzone.js")
-	ce(err, `statik.Asset("public/dropzone.js")`)
 	r := gin.Default()
 	r.Use(gin.Recovery())
 	opts := []gin.HandlerFunc{}

@@ -12,7 +12,7 @@ import (
 
 	"github.com/chneau/limiter"
 
-	"github.com/urfave/cli"
+	"github.com/urfave/cli/v2"
 )
 
 func receiveAction(c *cli.Context) error {
