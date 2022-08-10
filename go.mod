@@ -3,7 +3,6 @@ module github.com/chneau/serve
 go 1.19
 
 require (
-	github.com/chneau/limiter v1.0.0
 	github.com/gin-gonic/gin v1.8.1
 	github.com/howeyc/gopass v0.0.0-20210920133722-c8aef6fb66ef
 	github.com/klauspost/compress v1.15.9
