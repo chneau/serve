@@ -25,10 +25,7 @@ func getFiles(dir string) map[string]uint64 {
 
 func sendAction(c *cli.Context) error {
 	files := getFiles(".")
-	port := c.Args().First()
-	if port == "" {
-		port = "8888"
-	}
+	port := c.String("port")
 	r := gin.Default()
 	r.GET("/files", func(c *gin.Context) {
 		b := lo.Must(io.ReadAll(c.Request.Body))

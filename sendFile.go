@@ -15,7 +15,7 @@ import (
 )
 
 func sendFileAction(c *cli.Context) error {
-	port := "8888"
+	port := c.String("port")
 	fileName := c.Args().First()
 	fileInfo := lo.Must(os.Stat(fileName))
 	r := gin.Default()

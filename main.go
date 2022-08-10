@@ -18,11 +18,11 @@ func main() {
 	app.Usage = "serve a file for direct download"
 	app.Commands = []*cli.Command{
 		{
-			Name:      "send",
-			Aliases:   []string{"s"},
-			ArgsUsage: "[port]",
-			Usage:     "send a folder using `serve receive`",
-			Action:    sendAction,
+			Name:    "send",
+			Aliases: []string{"s"},
+			Flags:   []cli.Flag{&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"}},
+			Usage:   "send a folder using `serve receive`",
+			Action:  sendAction,
 		},
 		{
 			Name:      "receive",
@@ -40,6 +40,7 @@ func main() {
 			Action:    webAction,
 		},
 	}
+	app.Flags = []cli.Flag{&cli.StringFlag{Name: "port", Aliases: []string{"p"}, Value: "8888"}}
 	app.ArgsUsage = "[path]"
 	app.Action = sendFileAction
 	lo.Must0(app.Run(os.Args))

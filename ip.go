@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"net"
 	"os"
 
@@ -19,6 +18,6 @@ func GetOutboundIP() net.IP {
 
 func printIP(port string) {
 	address := fmt.Sprintf("http://%s:%s/", GetOutboundIP(), port)
-	log.Println("Listening on", address)
 	qrterminal.GenerateHalfBlock(address, qrterminal.L, os.Stdout)
+	fmt.Println("Listening on", address)
 }
