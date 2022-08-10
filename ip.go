@@ -3,18 +3,14 @@ package main
 import (
 	"log"
 	"net"
+
+	"github.com/samber/lo"
 )
 
 func printIP(port string) {
-	ifaces, err := net.Interfaces()
-	if err != nil {
-		panic(err)
-	}
+	ifaces := lo.Must(net.Interfaces())
 	for _, i := range ifaces {
-		addrs, err := i.Addrs()
-		if err != nil {
-			panic(err)
-		}
+		addrs := lo.Must(i.Addrs())
 		for _, addr := range addrs {
 			var ip net.IP
 			switch v := addr.(type) {

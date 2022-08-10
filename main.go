@@ -69,10 +69,7 @@ func main() {
 func askWhile(prompt string) string {
 	res := ""
 	for res == "" {
-		b, err := gopass.GetPasswdPrompt(prompt, true, os.Stdin, os.Stdout)
-		if err != nil {
-			os.Exit(0)
-		}
+		b := lo.Must(gopass.GetPasswdPrompt(prompt, true, os.Stdin, os.Stdout))
 		res = string(b)
 	}
 	return res

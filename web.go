@@ -49,9 +49,9 @@ func web(dir, port, password, username string) error {
 		fullPath := c.PostForm("fullPath")
 		lo.Must0(os.MkdirAll(dir+"/uploaded_files/"+fullPath[:len(fullPath)-len(file.Filename)], 0777))
 		f := lo.Must(os.OpenFile(dir+"/uploaded_files/"+fullPath, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0666))
-		defer lo.Must0(f.Close())
+		defer f.Close()
 		ff := lo.Must(file.Open())
-		defer lo.Must0(ff.Close())
+		defer ff.Close()
 		written := lo.Must(io.Copy(f, ff))
 		if written != file.Size {
 			c.Status(406)
