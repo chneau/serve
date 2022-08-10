@@ -5,7 +5,6 @@ import (
 	"io"
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
@@ -29,10 +28,6 @@ func sendAction(c *cli.Context) error {
 	port := c.Args().First()
 	if port == "" {
 		port = "8888"
-	}
-	gin.SetMode(gin.ReleaseMode)
-	if runtime.GOOS == "windows" {
-		gin.DisableConsoleColor()
 	}
 	r := gin.Default()
 	r.GET("/files", func(c *gin.Context) {

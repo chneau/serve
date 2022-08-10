@@ -6,7 +6,6 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 
 	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
@@ -23,10 +22,6 @@ var dcss []byte
 var djs []byte
 
 func web(dir, port string) {
-	gin.SetMode(gin.ReleaseMode)
-	if runtime.GOOS == "windows" {
-		gin.DisableConsoleColor()
-	}
 	r := gin.Default()
 	r.StaticFS("/serve", http.Dir(dir))
 	r.GET("/", func(c *gin.Context) {

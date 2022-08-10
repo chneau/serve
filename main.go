@@ -3,15 +3,19 @@ package main
 import (
 	"os"
 
+	"github.com/gin-gonic/gin"
 	"github.com/samber/lo"
 	"github.com/urfave/cli/v2"
 )
+
+func init() {
+	gin.SetMode(gin.ReleaseMode)
+}
 
 func main() {
 	app := cli.NewApp()
 	app.Name = "serve"
 	app.Usage = "serve files from or to another computer"
-	app.Version = "0.0.1"
 	app.Commands = []*cli.Command{
 		{
 			Name:      "send",
@@ -36,5 +40,7 @@ func main() {
 			Action:    webAction,
 		},
 	}
+	app.ArgsUsage = "[path]"
+	app.Action = sendFileAction
 	lo.Must0(app.Run(os.Args))
 }
