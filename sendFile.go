@@ -35,6 +35,7 @@ func sendFileAction(c *cli.Context) error {
 			DrawFunc:     ioprogress.DrawTerminalf(os.Stdout, drawFunc),
 			DrawInterval: time.Millisecond * 100,
 		}))
+		c.Writer.Flush()
 		defer os.Exit(0)
 	})
 	printIP(port)
