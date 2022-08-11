@@ -18,6 +18,7 @@ func GetOutboundIP() net.IP {
 
 func printIP(port string) {
 	address := fmt.Sprintf("http://%s:%s/", GetOutboundIP(), port)
+	localAddress := fmt.Sprintf("http://localhost:%s/", port)
 	qrterminal.GenerateHalfBlock(address, qrterminal.L, os.Stdout)
-	fmt.Println("Listening on", address)
+	fmt.Println("Listening on", address, localAddress)
 }
