@@ -4,7 +4,7 @@ go 1.25.0
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/klauspost/compress v1.15.9
+	github.com/klauspost/compress v1.18.7
 	github.com/mdp/qrterminal/v3 v3.0.0
 	github.com/mitchellh/ioprogress v0.0.0-20180201004757-6a23b12fa88e
 	github.com/samber/lo v1.27.0
